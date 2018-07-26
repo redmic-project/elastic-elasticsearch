@@ -1,8 +1,8 @@
 version: '3.5'
 
 services:
-  elastic-search:
-    container_name: elastic-search
+  elasticsearch:
+    container_name: elasticsearch
     restart: on-failure:3
     networks:
       elastic-net:
@@ -17,5 +17,5 @@ services:
       - ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=1
 
 volumes:
-  elastic-search-vol:
-    name: elastic-search-vol
+  elasticsearch-vol:
+    name: elasticsearch-vol

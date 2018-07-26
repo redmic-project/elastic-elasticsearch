@@ -1,10 +1,10 @@
 version: '3.5'
 
 services:
-  elastic-search:
+  elasticsearch:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     volumes:
-      - elastic-search-vol:/usr/share/elasticsearch/data
+      - elasticsearch-vol:/usr/share/elasticsearch/data
     environment:
       - ES_BOOTSTRAP_MEMORY_LOCK=true
       - ES_JAVA_OPTS=-Xms2g -Xmx2g -Djava.security.policy=file:///usr/share/elasticsearch/config/grovy-classes_whitelist.policy

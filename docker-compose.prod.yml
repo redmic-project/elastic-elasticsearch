@@ -1,7 +1,7 @@
 version: '3.5'
 
 services:
-  elastic-search:
+  elasticsearch:
     networks:
       elastic-net:
         aliases:
@@ -25,8 +25,8 @@ services:
         max_attempts: 3
 
 volumes:
-  elastic-search-vol:
-    name: "elastic-search-{{.Task.Slot}}-vol"
+  elasticsearch-vol:
+    name: "elasticsearch-{{.Task.Slot}}-vol"
     driver: "cloudstor:aws"
     driver_opts:
       backing: relocatable
