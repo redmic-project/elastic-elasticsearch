@@ -1,0 +1,25 @@
+cluster.name: ${ES_CLUSTER_NAME}
+node.name: ${ES_NODE_NAME}
+
+node.master: ${ES_NODE_MASTER}
+node.data: ${ES_NODE_DATA}
+node.ingest: ${ES_NODE_INGEST}
+
+network.host: ${ES_NETWORK_HOST}
+network.bind_host: ${ES_NETWORK_BIND_HOST}
+network.publish_host: ${ES_NETWORK_PUBLISH_HOST}
+
+discovery.zen.minimum_master_nodes: ${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES}
+
+bootstrap.memory_lock: ${ES_BOOTSTRAP_MEMORY_LOCK}
+
+indices.query.bool.max_clause_count: ${ES_INDICES_QUERY_BOOL_MAX_CLAUSE_COUNT}
+
+xpack.graph.enabled: false
+xpack.ml.enabled: false
+xpack.monitoring.enabled: false
+
+xpack.security.enabled: true
+xpack.security.audit.enabled: true
+
+xpack.watcher.enabled: false

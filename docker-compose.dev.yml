@@ -1,0 +1,21 @@
+version: '3.5'
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    restart: on-failure:3
+    networks:
+      elastic-net:
+        aliases:
+          - es-1
+    ports:
+      - ${PORT1}:${PORT1}
+      - ${PORT2}:${PORT2}
+    environment:
+      - ES_CLUSTER_NAME=elasticsearch_dev
+      - ES_NODE_NAME=node-1
+      - ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=1
+
+volumes:
+  elasticsearch-vol:
+    name: elasticsearch-vol

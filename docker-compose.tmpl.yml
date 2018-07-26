@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  elasticsearch:
+    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    volumes:
+      - elasticsearch-vol:/usr/share/elasticsearch/data
+    environment:
+      - ES_BOOTSTRAP_MEMORY_LOCK=true
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g -Djava.security.policy=file:///usr/share/elasticsearch/config/grovy-classes_whitelist.policy
+      - ES_PLUGINS
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test: curl -sSf -u "${ELASTIC_USER}:${ELASTIC_USER_PASS}" http://localhost:${PORT1}/_cluster/health > /dev/null
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 2m
+
+networks:
+  elastic-net:
+    external: true
