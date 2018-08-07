@@ -3,7 +3,7 @@
 ELASTIC_ADMIN=elastic
 retryManageUsers=true
 
-while [ ${retryManageUsers} ]
+while [ "${retryManageUsers}" -eq "true" ]
 do
 	responseStatus=$(curl --write-out %{http_code} --silent --output /dev/null \
 		-u "${ELASTIC_ADMIN}:${ELASTIC_ADMIN_PASS}" \
