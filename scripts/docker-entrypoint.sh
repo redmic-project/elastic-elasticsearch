@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILENAME="elasticsearch"
+TEMPLATE_FILENAME="elasticsearch"
 OTHER_NODES=""
 
 chown -R elasticsearch:elasticsearch ${ES_DATA_PATH}
@@ -39,7 +39,7 @@ if [ -n "${SWARM_MODE}" ]; then
     fi
 fi
 
-envsubst < /${FILENAME}.template > ${ES_PATH}/config/${FILENAME}.yml
+envsubst < /${TEMPLATE_FILENAME}.template > ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
 
 # Search nodes
 if [ -n "${OTHER_NODES}" ];then
@@ -47,7 +47,7 @@ if [ -n "${OTHER_NODES}" ];then
 	export ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=${OTHER_NODES%,}
 	ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=",${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS}"
 	echo "discovery.zen.ping.unicast.hosts: ${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS}" \
-		| sed -e 's/,/\n   - /g' >> ${ES_PATH}/config/${FILENAME}.yml
+		| sed -e 's/,/\n   - /g' >> ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
 else
     echo "There is no another nodes in cluster. I am alone!"
 fi
@@ -68,8 +68,8 @@ function check_credentials_s3() {
         exit 1
     fi
 
-    echo "cloud.aws.s3.access_key: ${AWS_ACCESS_KEY_ID}" >> ${ES_PATH}/config/${FILENAME}.yml
-    echo "cloud.aws.s3.secret_key: ${AWS_SECRET_ACCESS_KEY}" >> ${ES_PATH}/config/${FILENAME}.yml
+    echo "cloud.aws.s3.access_key: ${AWS_ACCESS_KEY_ID}" >> ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
+    echo "cloud.aws.s3.secret_key: ${AWS_SECRET_ACCESS_KEY}" >> ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
 }
 
 
@@ -91,6 +91,8 @@ for PLUGIN in "${PLUGINS[@]}"; do
     fi
 done
 
-cat ${ES_PATH}/config/${FILENAME}.yml
+cat ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
+
+./manage-users.sh & disown
 
 gosu elasticsearch "$@"

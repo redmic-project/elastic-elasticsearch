@@ -1,4 +1,7 @@
-FROM registry.gitlab.com/redmic-project/docker/elasticsearch-xpack:latest
+ARG PARENT_IMAGE_NAME
+ARG PARENT_IMAGE_TAG
+
+FROM ${PARENT_IMAGE_NAME}:${PARENT_IMAGE_TAG}
 
 ENV ES_CLUSTER_NAME="clustername" \
 	ES_NODE_NAME="nodename" \
@@ -11,8 +14,9 @@ ENV ES_CLUSTER_NAME="clustername" \
 	ES_NETWORK_BIND_HOST="0.0.0.0" \
 	ES_NETWORK_PUBLISH_HOST="_eth0_" \
 	ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=2 \
-	ES_PATH="/usr/share/elasticsearch" \
-	ES_DATA_PATH="/usr/share/elasticsearch/data"
+	ES_PATH="/usr/share/elasticsearch"
+
+ENV ES_DATA_PATH="${ES_PATH}/data"
 
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
@@ -20,7 +24,7 @@ RUN apt-get update && \
 		dnsutils && \
 	ulimit -n 65536
 
-COPY config/ /usr/share/elasticsearch/config/
+COPY config/ ${ES_PATH}/config/
 COPY scripts/ /
 
 VOLUME ["${ES_DATA_PATH}"]

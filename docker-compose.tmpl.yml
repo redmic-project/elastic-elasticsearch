@@ -9,6 +9,11 @@ services:
       - ES_BOOTSTRAP_MEMORY_LOCK=true
       - ES_JAVA_OPTS=-Xms2g -Xmx2g -Djava.security.policy=file:///usr/share/elasticsearch/config/grovy-classes_whitelist.policy
       - ES_PLUGINS
+      - OLD_ELASTIC_ADMIN_PASS
+      - ELASTIC_ADMIN_PASS
+      - ELASTIC_USER
+      - ELASTIC_USER_PASS
+      - ELASTIC_USER_ROLE
     ulimits:
       memlock:
         soft: -1
@@ -18,7 +23,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 2m
+      start_period: 5m
 
 networks:
   elastic-net:
