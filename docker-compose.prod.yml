@@ -31,5 +31,4 @@ volumes:
     driver_opts:
       backing: relocatable
       size: 25
-      ebstype: io1
-      iops: 100
+      ebstype: gp2

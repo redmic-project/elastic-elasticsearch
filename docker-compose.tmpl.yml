@@ -14,10 +14,6 @@ services:
       - ELASTIC_USER
       - ELASTIC_USER_PASS
       - ELASTIC_USER_ROLE
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
     healthcheck:
       test: curl -sSf -u "${ELASTIC_USER}:${ELASTIC_USER_PASS}" http://localhost:${PORT1}/_cluster/health > /dev/null
       interval: 30s
