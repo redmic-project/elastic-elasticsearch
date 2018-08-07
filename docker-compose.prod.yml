@@ -6,9 +6,6 @@ services:
       elastic-net:
         aliases:
           - es-{{.Task.Slot}}
-    ports:
-      - ${PORT1}
-      - ${PORT2}
     environment:
       - SWARM_MODE=true
       - SERVICE_NAME={{.Service.Name}}

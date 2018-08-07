@@ -14,7 +14,6 @@ services:
     environment:
       - ES_CLUSTER_NAME=elasticsearch_dev
       - ES_NODE_NAME=node-1
-      - ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=1
     ulimits:
       memlock:
         soft: -1

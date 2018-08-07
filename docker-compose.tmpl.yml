@@ -8,6 +8,7 @@ services:
     environment:
       - ES_BOOTSTRAP_MEMORY_LOCK=true
       - ES_JAVA_OPTS=-Xms2g -Xmx2g -Djava.security.policy=file:///usr/share/elasticsearch/config/grovy-classes_whitelist.policy
+      - ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=1
       - ES_PLUGINS
       - OLD_ELASTIC_ADMIN_PASS
       - ELASTIC_ADMIN_PASS
