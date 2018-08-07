@@ -12,7 +12,7 @@ if [ -n "${SWARM_MODE}" ]; then
     fi
 
     # Delay to let hostname to be published to swarm DNS service
-    sleep 15
+    sleep ${DISCOVERY_DELAY:-15}
 
     echo "Discovering other nodes in cluster..."
     # Docker swarm's DNS resolves special hostname "tasks.<service_name" to IP addresses of all containers inside overlay network
