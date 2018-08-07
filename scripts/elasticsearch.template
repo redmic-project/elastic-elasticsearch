@@ -15,6 +15,8 @@ bootstrap.memory_lock: ${ES_BOOTSTRAP_MEMORY_LOCK}
 
 indices.query.bool.max_clause_count: ${ES_INDICES_QUERY_BOOL_MAX_CLAUSE_COUNT}
 
+path.data: ${ES_DATA_PATH}/data
+
 xpack.graph.enabled: false
 xpack.ml.enabled: false
 xpack.monitoring.enabled: false
