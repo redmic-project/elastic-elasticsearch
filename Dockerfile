@@ -10,7 +10,9 @@ ENV ES_CLUSTER_NAME="clustername" \
 	ES_NETWORK_HOST="0.0.0.0" \
 	ES_NETWORK_BIND_HOST="0.0.0.0" \
 	ES_NETWORK_PUBLISH_HOST="_eth0_" \
-	ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=2
+	ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=2 \
+	ES_PATH="/usr/share/elasticsearch" \
+	ES_DATA_PATH="/usr/share/elasticsearch/data"
 
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends \
@@ -20,6 +22,8 @@ RUN apt-get update && \
 
 COPY config/ /usr/share/elasticsearch/config/
 COPY scripts/ /
+
+VOLUME ["${ES_DATA_PATH}"]
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

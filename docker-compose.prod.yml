@@ -16,7 +16,7 @@ services:
       - ES_NODE_NAME={{.Service.Name}}-{{.Task.Slot}}
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 3
       placement:
         constraints:
           - node.role == worker

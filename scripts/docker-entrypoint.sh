@@ -1,8 +1,9 @@
 #!/bin/bash
 
 FILENAME="elasticsearch"
-ES_PATH="/usr/share/elasticsearch"
 OTHER_NODES=""
+
+chown -R elasticsearch:elasticsearch ${ES_DATA_PATH}
 
 if [ -n "${SWARM_MODE}" ]; then
     if [ -z "${SERVICE_NAME}" ]; then
@@ -89,5 +90,7 @@ for PLUGIN in "${PLUGINS[@]}"; do
         echo "Plugin ${PLUGIN} already installed!"
     fi
 done
+
+cat ${ES_PATH}/config/${FILENAME}.yml
 
 gosu elasticsearch "$@"
