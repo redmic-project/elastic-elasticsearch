@@ -93,6 +93,6 @@ done
 
 cat ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
 
-./manage-users.sh & disown
+/manage-users.sh & disown
 
 gosu elasticsearch "$@"
