@@ -146,7 +146,7 @@ deploy-pro:
   image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
   variables:
     DOCKER_DRIVER: overlay2
-    STATUS_CHECK_DELAY: '120'
+    STATUS_CHECK_DELAY: '60'
     STATUS_CHECK_INTERVAL: '20'
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     SERVICE: elastic

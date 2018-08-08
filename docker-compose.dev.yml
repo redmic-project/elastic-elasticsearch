@@ -14,6 +14,7 @@ services:
     environment:
       - ES_CLUSTER_NAME=elasticsearch_dev
       - ES_NODE_NAME=node-1
+      - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=elasticsearch
     ulimits:
       memlock:
         soft: -1
