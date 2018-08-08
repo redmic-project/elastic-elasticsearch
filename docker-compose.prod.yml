@@ -15,6 +15,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
+      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == worker
