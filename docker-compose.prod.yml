@@ -7,15 +7,12 @@ services:
         aliases:
           - es-{{.Task.Slot}}
     environment:
-      - SWARM_MODE=true
-      - DISCOVERY_DELAY=90
-      - SERVICE_NAME={{.Service.Name}}
       - ES_CLUSTER_NAME=redmic
       - ES_NODE_NAME={{.Service.Name}}-{{.Task.Slot}}
+      - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=tasks.{{.Service.Name}}
     deploy:
       mode: replicated
       replicas: 3
-      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == worker
