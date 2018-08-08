@@ -7,7 +7,7 @@ while [ "${retryManageUsers}" -eq "1" ]
 do
 	responseStatus=$(curl --write-out %{http_code} --silent --output /dev/null \
 		-u "${elasticAdmin}:${ELASTIC_ADMIN_PASS}" \
-		localhost:9200/_cluster/health)
+		"localhost:9200/_xpack/security/user/${elasticAdmin}")
 
 	echo "Trying to manage users, got ${responseStatus} response"
 
