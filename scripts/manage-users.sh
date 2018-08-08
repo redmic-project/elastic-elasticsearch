@@ -1,19 +1,19 @@
 #!/bin/sh
 
-ELASTIC_ADMIN=elastic
-retryManageUsers=true
+elasticAdmin=elastic
+retryManageUsers=1
 
-while [ "${retryManageUsers}" -eq "true" ]
+while [ "${retryManageUsers}" -eq "1" ]
 do
 	responseStatus=$(curl --write-out %{http_code} --silent --output /dev/null \
-		-u "${ELASTIC_ADMIN}:${ELASTIC_ADMIN_PASS}" \
+		-u "${elasticAdmin}:${ELASTIC_ADMIN_PASS}" \
 		localhost:9200/_cluster/health)
 
 	echo "Trying to manage users, got ${responseStatus} response"
 
 	if [ "${responseStatus}" -eq "401" ] || [ "${responseStatus}" -eq "200" ]
 	then
-		retryManageUsers=false
+		retryManageUsers=0
 	else
 		sleep 1
 		continue
@@ -23,8 +23,8 @@ do
 
 	if [ "${responseStatus}" -eq "401" ]
 	then
-		curl -XPUT -u "${ELASTIC_ADMIN}:${OLD_ELASTIC_ADMIN_PASS}" \
-			"localhost:9200/_xpack/security/user/${ELASTIC_ADMIN}/_password" \
+		curl -XPUT -u "${elasticAdmin}:${OLD_ELASTIC_ADMIN_PASS}" \
+			"localhost:9200/_xpack/security/user/${elasticAdmin}/_password" \
 			-H "Content-Type: application/json" -d "{
 				\"password\": \"${ELASTIC_ADMIN_PASS}\"
 			}"
@@ -40,12 +40,12 @@ do
 	echo "Trying to create default role and user"
 
 	responseStatus=$(curl --write-out %{http_code} --silent --output /dev/null \
-		-u "${ELASTIC_ADMIN}:${ELASTIC_ADMIN_PASS}" \
+		-u "${elasticAdmin}:${ELASTIC_ADMIN_PASS}" \
 		"localhost:9200/_xpack/security/role/${ELASTIC_USER_ROLE}")
 
 	if [ "${responseStatus}" -eq "404" ]
 	then
-		curl -XPOST -u "${ELASTIC_ADMIN}:${ELASTIC_ADMIN_PASS}" \
+		curl -XPOST -u "${elasticAdmin}:${ELASTIC_ADMIN_PASS}" \
 			"localhost:9200/_xpack/security/role/${ELASTIC_USER_ROLE}" \
 			-H "Content-Type: application/json" -d '{
 				"run_as": [],
@@ -61,7 +61,7 @@ do
 			echo "Role created"
 		fi
 
-		curl -XPOST -u "${ELASTIC_ADMIN}:${ELASTIC_ADMIN_PASS}" \
+		curl -XPOST -u "${elasticAdmin}:${ELASTIC_ADMIN_PASS}" \
 			"localhost:9200/_xpack/security/user/${ELASTIC_USER}" \
 			-H "Content-Type: application/json" -d "{
 				\"password\": \"${ELASTIC_USER_PASS}\",
