@@ -8,7 +8,7 @@ services:
           - es-{{.Task.Slot}}
     environment:
       - SWARM_MODE=true
-      - DISCOVERY_DELAY=60
+      - DISCOVERY_DELAY=30
       - SERVICE_NAME={{.Service.Name}}
       - ES_CLUSTER_NAME=redmic
       - ES_NODE_NAME={{.Service.Name}}-{{.Task.Slot}}
