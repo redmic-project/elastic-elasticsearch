@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TEMPLATE_FILENAME="elasticsearch"
-OTHER_NODES=""
+templateFilename="elasticsearch"
+otherNodes=""
 
 chown -R elasticsearch:elasticsearch ${ES_DATA_PATH}
 
@@ -11,43 +11,47 @@ if [ -n "${SWARM_MODE}" ]; then
         exit 3
     fi
 
+    DISCOVERY_DELAY=${DISCOVERY_DELAY:-15}
+
+    echo "Waiting ${DISCOVERY_DELAY}s before discovering..."
+
     # Delay to let hostname to be published to swarm DNS service
-    sleep ${DISCOVERY_DELAY:-15}
+    sleep ${DISCOVERY_DELAY}
 
     echo "Discovering other nodes in cluster..."
     # Docker swarm's DNS resolves special hostname "tasks.<service_name" to IP addresses of all containers inside overlay network
-    SWARM_SERVICE_IPs=$(dig tasks.${SERVICE_NAME} +short)
+    swarmServiceIps=$(dig tasks.${SERVICE_NAME} +short)
     echo "Nodes of service ${SERVICE_NAME}:"
-    echo "$SWARM_SERVICE_IPs"
+    echo "${swarmServiceIps}"
 
-    HOSTNAME=$(hostname)
-    MY_IP=$(dig ${HOSTNAME} +short)
-    echo "My IP: ${MY_IP}"
+    hostname=$(hostname)
+    myIp=$(dig ${hostname} +short)
+    echo "My IP: ${myIp}"
 
 
-    for NODE_IP in $SWARM_SERVICE_IPs
+    for nodeIp in ${swarmServiceIps}
     do
-        if [ "${NODE_IP}" == "${MY_IP}" ];then
+        if [ "${nodeIp}" == "${myIp}" ];then
             continue;
         fi
-        OTHER_NODES="${OTHER_NODES}${NODE_IP},"
+        otherNodes="${otherNodes}${nodeIp},"
     done
 
-    if [ -n "${MY_IP}" ];then
-        echo "Setting network.publish_host=${MY_IP}"
-        export ES_NETWORK_PUBLISH_HOST=${MY_IP}
+    if [ -n "${myIp}" ];then
+        echo "Setting network.publish_host=${myIp}"
+        export ES_NETWORK_PUBLISH_HOST=${myIp}
     fi
 fi
 
-envsubst < /${TEMPLATE_FILENAME}.template > ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
+envsubst < /${templateFilename}.template > ${ES_PATH}/config/${templateFilename}.yml
 
 # Search nodes
-if [ -n "${OTHER_NODES}" ];then
-    echo "Setting discovery.zen.ping.unicast.hosts=${OTHER_NODES%,}"
-	export ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=${OTHER_NODES%,}
+if [ -n "${otherNodes}" ];then
+    echo "Setting discovery.zen.ping.unicast.hosts=${otherNodes%,}"
+	export ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=${otherNodes%,}
 	ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=",${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS}"
 	echo "discovery.zen.ping.unicast.hosts: ${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS}" \
-		| sed -e 's/,/\n   - /g' >> ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
+		| sed -e 's/,/\n   - /g' >> ${ES_PATH}/config/${templateFilename}.yml
 else
     echo "There is no another nodes in cluster. I am alone!"
 fi
@@ -68,30 +72,30 @@ function check_credentials_s3() {
         exit 1
     fi
 
-    echo "cloud.aws.s3.access_key: ${AWS_ACCESS_KEY_ID}" >> ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
-    echo "cloud.aws.s3.secret_key: ${AWS_SECRET_ACCESS_KEY}" >> ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
+    echo "cloud.aws.s3.access_key: ${AWS_ACCESS_KEY_ID}" >> ${ES_PATH}/config/${templateFilename}.yml
+    echo "cloud.aws.s3.secret_key: ${AWS_SECRET_ACCESS_KEY}" >> ${ES_PATH}/config/${templateFilename}.yml
 }
 
 
 # Install plugins
 pluginsInstalled=$(${ES_PATH}/bin/elasticsearch-plugin list)
 IFS=';' read -ra PLUGINS <<< "${ES_PLUGINS}"
-for PLUGIN in "${PLUGINS[@]}"; do
-    echo "Installing plugin ${PLUGIN}"
+for plugin in "${PLUGINS[@]}"; do
+    echo "Installing plugin ${plugin}"
 
-    if [ "${PLUGIN}" == "repository-s3" ]; then
+    if [ "${plugin}" == "repository-s3" ]; then
         check_credentials_s3
     fi
 
-    echo "${pluginsInstalled}" | grep "${PLUGIN}"
+    echo "${pluginsInstalled}" | grep "${plugin}"
     if [ "${?}" -ne "0" ]; then
-        gosu elasticsearch ${ES_PATH}/bin/elasticsearch-plugin install --batch ${PLUGIN}
+        gosu elasticsearch ${ES_PATH}/bin/elasticsearch-plugin install --batch ${plugin}
     else
-        echo "Plugin ${PLUGIN} already installed!"
+        echo "Plugin ${plugin} already installed!"
     fi
 done
 
-cat ${ES_PATH}/config/${TEMPLATE_FILENAME}.yml
+cat ${ES_PATH}/config/${templateFilename}.yml
 
 /manage-users.sh & disown
 
