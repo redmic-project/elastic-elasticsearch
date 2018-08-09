@@ -1,13 +1,9 @@
 version: '3.5'
 
 services:
-  elasticsearch:
-    container_name: elasticsearch
+  elasticsearch-1:
+    container_name: elasticsearch-1
     restart: on-failure:3
-    networks:
-      elastic-net:
-        aliases:
-          - es-1
     ports:
       - ${PORT1}:${PORT1}
       - ${PORT2}:${PORT2}
@@ -21,5 +17,5 @@ services:
         hard: -1
 
 volumes:
-  elasticsearch-vol:
+  elasticsearch-1-vol:
     name: elasticsearch-vol
