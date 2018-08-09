@@ -2,9 +2,10 @@ version: '3.5'
 
 services:
   elasticsearch:
-    hostname: elasticsearch-{{.Task.Slot}}
     networks:
-      - elastic-net
+      elastic-net:
+        aliases:
+          - es-{{.Task.Slot}}
     environment:
       - ES_CLUSTER_NAME=redmic
       - ES_NODE_NAME={{.Service.Name}}-{{.Task.Slot}}
@@ -12,7 +13,6 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-      endpoint_mode: dnsrr
       placement:
         constraints:
           - node.role == worker
