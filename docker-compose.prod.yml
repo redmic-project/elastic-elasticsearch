@@ -8,9 +8,9 @@ services:
           - es-{{.Task.Slot}}
     environment:
       - ES_CLUSTER_NAME=redmic
-      - ES_NODE_NAME={{.Service.Name}}-{{.Task.Slot}}
-      - ES_NETWORK_HOST={{.Service.Name}}-{{.Task.Slot}}
-      - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=tasks.{{.Service.Name}}
+      - ES_NODE_NAME=elasticsearch-{{.Task.Slot}}
+      - ES_NETWORK_HOST=elasticsearch-{{.Task.Slot}}
+      - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=['tasks.elasticsearch']
     deploy:
       mode: replicated
       replicas: 3
