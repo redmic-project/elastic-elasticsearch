@@ -2,10 +2,9 @@ version: '3.5'
 
 services:
   elasticsearch:
+    hostname: elasticsearch-{{.Task.Slot}}
     networks:
-      elastic-net:
-        aliases:
-          - es-{{.Task.Slot}}
+      - elastic-net
     environment:
       - ES_CLUSTER_NAME=redmic
       - ES_NODE_NAME={{.Service.Name}}-{{.Task.Slot}}
