@@ -3,6 +3,8 @@
 elasticAdmin=elastic
 retryManageUsers=1
 
+sleep ${USER_MANAGEMENT_DELAY:-60}
+
 while [ "${retryManageUsers}" -eq "1" ]
 do
 	responseStatus=$(curl --write-out %{http_code} --silent --output /dev/null \
