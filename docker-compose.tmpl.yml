@@ -19,8 +19,10 @@ services:
       - ELASTIC_USER_PASS
       - ELASTIC_USER_ROLE
     healthcheck:
-      test: curl -sSf -u "${ELASTIC_USER}:${ELASTIC_USER_PASS}" http://localhost:${PORT1}/_cluster/health > /dev/null
-      interval: 30s
+      test: >
+        status=$(curl --write-out %{http_code} --silent --output /dev/null -u "${ELASTIC_USER}:${ELASTIC_USER_PASS}"
+          localhost:{PORT1}/_cluster/health);
+        [ "${status}" -eq "200" ] || [  "${status}" -eq "401" ]
       timeout: 10s
       retries: 3
       start_period: 2m
@@ -43,7 +45,10 @@ services:
       - ELASTIC_USER_PASS
       - ELASTIC_USER_ROLE
     healthcheck:
-      test: curl -sSf -u "${ELASTIC_USER}:${ELASTIC_USER_PASS}" http://localhost:${PORT1}/_cluster/health > /dev/null
+      test: >
+        status=$(curl --write-out %{http_code} --silent --output /dev/null -u "${ELASTIC_USER}:${ELASTIC_USER_PASS}"
+          localhost:{PORT1}/_cluster/health);
+        [ "${status}" -eq "200" ] || [  "${status}" -eq "401" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -67,7 +72,10 @@ services:
       - ELASTIC_USER_PASS
       - ELASTIC_USER_ROLE
     healthcheck:
-      test: curl -sSf -u "${ELASTIC_USER}:${ELASTIC_USER_PASS}" http://localhost:${PORT1}/_cluster/health > /dev/null
+      test: >
+        status=$(curl --write-out %{http_code} --silent --output /dev/null -u "${ELASTIC_USER}:${ELASTIC_USER_PASS}"
+          localhost:{PORT1}/_cluster/health);
+        [ "${status}" -eq "200" ] || [  "${status}" -eq "401" ]
       interval: 30s
       timeout: 10s
       retries: 3
