@@ -6,6 +6,7 @@ services:
       - ES_CLUSTER_NAME=redmic
       - ES_NODE_NAME={{.Service.Name}}
       - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=['elasticsearch-1', 'elasticsearch-2', 'elasticsearch-3']
+      - ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=2
     deploy:
       mode: replicated
       replicas: 1
@@ -22,6 +23,7 @@ services:
       - ES_CLUSTER_NAME=redmic
       - ES_NODE_NAME={{.Service.Name}}
       - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=['elasticsearch-1', 'elasticsearch-2', 'elasticsearch-3']
+      - ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=2
     deploy:
       mode: replicated
       replicas: 1
@@ -38,6 +40,7 @@ services:
       - ES_CLUSTER_NAME=redmic
       - ES_NODE_NAME={{.Service.Name}}
       - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=['elasticsearch-1', 'elasticsearch-2', 'elasticsearch-3']
+      - ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=2
     deploy:
       mode: replicated
       replicas: 1
