@@ -20,3 +20,9 @@ services:
 volumes:
   elasticsearch-1-vol:
     name: elasticsearch-vol
+
+  elasticsearch-2-vol:
+    name: elasticsearch-vol
+
+  elasticsearch-3-vol:
+    name: elasticsearch-vol
