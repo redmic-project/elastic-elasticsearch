@@ -1,17 +1,21 @@
+image: docker:stable
+
 stages:
   - package
   - test-package
   - deploy
 
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+
 docker-build-commit-non-master-branches:
   stage: package
-  image: docker:stable
   variables:
-    DOCKER_DRIVER: overlay2
     PARENT_IMAGE_NAME: registry.gitlab.com/redmic-project/docker/elasticsearch-xpack
     PARENT_IMAGE_TAG: latest
-  services:
-    - docker:dind
   only:
     - branches
   except:
@@ -25,13 +29,9 @@ docker-build-commit-non-master-branches:
 
 docker-build-commit-master-branch:
   stage: package
-  image: docker:stable
   variables:
-    DOCKER_DRIVER: overlay2
     PARENT_IMAGE_NAME: registry.gitlab.com/redmic-project/docker/elasticsearch-xpack
     PARENT_IMAGE_TAG: latest
-  services:
-    - docker:dind
   only:
     - master
   script:
@@ -43,11 +43,6 @@ docker-build-commit-master-branch:
 
 docker-tag-already-built-image:
   stage: package
-  image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
-  services:
-    - docker:dind
   only:
     - tags
   script:
@@ -57,12 +52,7 @@ docker-tag-already-built-image:
 
 container-scanning:
   stage: test-package
-  image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
   allow_failure: true
-  services:
-    - docker:stable-dind
   only:
     - branches
   script:
@@ -85,19 +75,17 @@ deploy-dev:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
   variables:
-    DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICE: ${CI_PROJECT_NAME}-1
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}-1
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    COMPOSE_FILE: docker-compose.${CI_PROJECT_NAME}-1.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-1.dev.yml
     OLD_ELASTIC_ADMIN_PASS: ${DEV_OLD_ELASTIC_ADMIN_PASS}
     ELASTIC_ADMIN_PASS: ${DEV_ELASTIC_ADMIN_PASS}
     ELASTIC_USER: ${DEV_ELASTIC_USER}
     ELASTIC_USER_PASS: ${DEV_ELASTIC_USER_PASS}
     ELASTIC_USER_ROLE: ${DEV_ELASTIC_USER_ROLE}
-  services:
-    - docker:dind
   script:
     - create-nets.sh elastic-net
     - >
@@ -114,19 +102,17 @@ deploy-supporting-branch:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy
   variables:
-    DOCKER_DRIVER: overlay2
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICE: ${CI_PROJECT_NAME}-1
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}-1
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.dev.yml
+    COMPOSE_FILE: docker-compose.${CI_PROJECT_NAME}-1.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-1.dev.yml
     OLD_ELASTIC_ADMIN_PASS: ${DEV_OLD_ELASTIC_ADMIN_PASS}
     ELASTIC_ADMIN_PASS: ${DEV_ELASTIC_ADMIN_PASS}
     ELASTIC_USER: ${DEV_ELASTIC_USER}
     ELASTIC_USER_PASS: ${DEV_ELASTIC_USER_PASS}
     ELASTIC_USER_ROLE: ${DEV_ELASTIC_USER_ROLE}
-  services:
-    - docker:dind
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
@@ -145,24 +131,38 @@ deploy-pro:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
   variables:
-    DOCKER_DRIVER: overlay2
     STATUS_CHECK_DELAY: '90'
     STATUS_CHECK_INTERVAL: '10'
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    SERVICE: elastic
-    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}-1 elastic_${CI_PROJECT_NAME}-2 elastic_${CI_PROJECT_NAME}-3
+    STACK: elastic
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.tmpl.yml:docker-compose.prod.yml
     OLD_ELASTIC_ADMIN_PASS: ${PRO_OLD_ELASTIC_ADMIN_PASS}
     ELASTIC_ADMIN_PASS: ${PRO_ELASTIC_ADMIN_PASS}
     ELASTIC_USER: ${PRO_ELASTIC_USER}
     ELASTIC_USER_PASS: ${PRO_ELASTIC_USER_PASS}
     ELASTIC_USER_ROLE: ${PRO_ELASTIC_USER_ROLE}
-  services:
-    - docker:dind
   script:
     - create-nets.sh elastic-net
+    - >
+      export SERVICES_TO_CHECK=elastic_${CI_PROJECT_NAME}-1
+        COMPOSE_FILE=docker-compose.${CI_PROJECT_NAME}-1.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-1.prod.yml
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      AWS_REGION=${AWS_REGION} OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS}
+      ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS} ELASTIC_USER=${ELASTIC_USER}
+      ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
+    - >
+      export SERVICES_TO_CHECK=elastic_${CI_PROJECT_NAME}-2
+        COMPOSE_FILE=docker-compose.${CI_PROJECT_NAME}-2.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-2.prod.yml
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      AWS_REGION=${AWS_REGION} OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS}
+      ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS} ELASTIC_USER=${ELASTIC_USER}
+      ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
+    - >
+      export SERVICES_TO_CHECK=elastic_${CI_PROJECT_NAME}-3
+        COMPOSE_FILE=docker-compose.${CI_PROJECT_NAME}-3.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-3.prod.yml
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
       AWS_REGION=${AWS_REGION} OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS}
