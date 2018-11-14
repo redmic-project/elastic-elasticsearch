@@ -1,31 +1,5 @@
 version: '3.5'
 
-services:
-  elasticsearch-2:
-    environment:
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g -Djava.security.policy=file:///usr/share/elasticsearch/config/grovy-classes_whitelist.policy
-      - ES_CLUSTER_NAME=redmic
-      - ES_NODE_NAME={{.Service.Name}}
-      - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=['elasticsearch-1', 'elasticsearch-2', 'elasticsearch-3']
-      - USER_MANAGEMENT_DELAY=200
-    deploy:
-      mode: replicated
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == worker
-          - engine.labels.availability_zone == ${AWS_REGION}b
-      restart_policy:
-        condition: on-failure
-        delay: 1m
-        window: 3m
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          memory: 1639M
-
 volumes:
   elasticsearch-vol:
     name: "elasticsearch-2-vol"
