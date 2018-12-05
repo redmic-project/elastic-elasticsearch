@@ -1,0 +1,46 @@
+version: '3.5'
+
+services:
+  es6-2:
+    image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    environment:
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - node.name=es6-2
+      - node.master
+      - node.data
+      - node.ingest
+      - path.data
+      - network.host
+      - bootstrap.memory_lock
+      - indices.query.bool.max_clause_count
+    networks:
+      elastic-net:
+        aliases:
+          - es6-2
+    volumes:
+      - es-vol:${path.data}/data
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        delay: 1m
+        window: 3m
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          memory: 1639M
+    healthcheck:
+      test: >
+        status=$$(curl --write-out %{http_code} --silent --output /dev/null localhost:${PORT}/_cluster/health);
+        [ "$${status}" -eq "200" ] || [ "$${status}" -eq "401" ]
+      timeout: 10s
+      retries: 3
+      start_period: 2m
+
+networks:
+  elastic-net:
+    name: elastic-net
+    driver: overlay
+    attachable: true

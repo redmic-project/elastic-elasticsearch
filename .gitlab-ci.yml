@@ -1,9 +1,9 @@
-image: docker:stable
-
 stages:
   - package
   - test-package
   - deploy
+
+image: docker:stable
 
 services:
   - docker:dind
@@ -13,32 +13,22 @@ variables:
 
 docker-build-commit-non-master-branches:
   stage: package
-  variables:
-    PARENT_IMAGE_NAME: registry.gitlab.com/redmic-project/docker/elasticsearch-xpack
-    PARENT_IMAGE_TAG: latest
   only:
     - branches
   except:
     - master
   script:
     - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - >
-      docker build --build-arg PARENT_IMAGE_NAME=${PARENT_IMAGE_NAME} --build-arg PARENT_IMAGE_TAG=${PARENT_IMAGE_TAG}
-      -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}-latest .
+    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}-latest .
     - docker push ${CI_REGISTRY_IMAGE}
 
 docker-build-commit-master-branch:
   stage: package
-  variables:
-    PARENT_IMAGE_NAME: registry.gitlab.com/redmic-project/docker/elasticsearch-xpack
-    PARENT_IMAGE_TAG: latest
   only:
     - master
   script:
     - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - >
-      docker build --build-arg PARENT_IMAGE_NAME=${PARENT_IMAGE_NAME} --build-arg PARENT_IMAGE_TAG=${PARENT_IMAGE_TAG}
-      -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:latest .
+    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:latest .
     - docker push ${CI_REGISTRY_IMAGE}
 
 docker-tag-already-built-image:
@@ -47,6 +37,7 @@ docker-tag-already-built-image:
     - tags
   script:
     - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    - docker pull ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
     - docker tag ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}
     - docker push ${CI_REGISTRY_IMAGE}
 
@@ -71,115 +62,176 @@ container-scanning:
   artifacts:
     paths: [gl-sast-container-report.json]
 
-deploy-dev:
+deploy-supporting-branch-develop:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: elastic
-    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}-1
+    SERVICES_TO_CHECK: elastic_es6-1
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.${CI_PROJECT_NAME}-1.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-1.dev.yml
-    OLD_ELASTIC_ADMIN_PASS: ${DEV_OLD_ELASTIC_ADMIN_PASS}
-    ELASTIC_ADMIN_PASS: ${DEV_ELASTIC_ADMIN_PASS}
-    ELASTIC_USER: ${DEV_ELASTIC_USER}
-    ELASTIC_USER_PASS: ${DEV_ELASTIC_USER_PASS}
-    ELASTIC_USER_ROLE: ${DEV_ELASTIC_USER_ROLE}
+    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.dev.yml
   script:
-    - create-nets.sh elastic-net
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS} ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS}
-      ELASTIC_USER=${ELASTIC_USER} ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
-  environment:
-    name: dev
-  only:
-    - dev
-  when: manual
-
-deploy-supporting-branch:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}-1
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.${CI_PROJECT_NAME}-1.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-1.dev.yml
-    OLD_ELASTIC_ADMIN_PASS: ${DEV_OLD_ELASTIC_ADMIN_PASS}
-    ELASTIC_ADMIN_PASS: ${DEV_ELASTIC_ADMIN_PASS}
-    ELASTIC_USER: ${DEV_ELASTIC_USER}
-    ELASTIC_USER_PASS: ${DEV_ELASTIC_USER_PASS}
-    ELASTIC_USER_ROLE: ${DEV_ELASTIC_USER_ROLE}
-    AWS_ACCESS_KEY_ID: ${DEV_AWS_ACCESS_KEY_ID}
-    AWS_SECRET_ACCESS_KEY: ${DEV_AWS_SECRET_ACCESS_KEY}
-    ES_PLUGINS: ${DEV_ES_PLUGINS}
-  script:
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS} ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS}
-      ELASTIC_USER=${ELASTIC_USER} ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
-      ES_PLUGINS=${ES_PLUGINS} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
   environment:
     name: dev
   only:
     - branches
   except:
     - master
-    - dev
   when: manual
 
-deploy-pro:
+deploy-stable-branch-develop:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  variables:
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_es6-1
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.dev.yml
+  script:
+    - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+  environment:
+    name: dev
+  only:
+    - master
+  when: manual
+
+deploy-es6-1-supporting-branch-production:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: elastic
+    SERVICES_TO_CHECK: elastic_es6-1
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
-    OLD_ELASTIC_ADMIN_PASS: ${PRO_OLD_ELASTIC_ADMIN_PASS}
-    ELASTIC_ADMIN_PASS: ${PRO_ELASTIC_ADMIN_PASS}
-    ELASTIC_USER: ${PRO_ELASTIC_USER}
-    ELASTIC_USER_PASS: ${PRO_ELASTIC_USER_PASS}
-    ELASTIC_USER_ROLE: ${PRO_ELASTIC_USER_ROLE}
-    AWS_ACCESS_KEY_ID: ${PRO_AWS_ACCESS_KEY_ID}
-    AWS_SECRET_ACCESS_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
-    ES_PLUGINS: ${PRO_ES_PLUGINS}
+    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.prod.yml
+    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
+    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
-    - create-nets.sh elastic-net
-    - >
-      export SERVICES_TO_CHECK=elastic_${CI_PROJECT_NAME}-1
-        COMPOSE_FILE=docker-compose.${CI_PROJECT_NAME}-1.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-1.prod.yml
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      AWS_REGION=${AWS_REGION} OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS}
-      ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS} ELASTIC_USER=${ELASTIC_USER}
-      ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
-      ES_PLUGINS=${ES_PLUGINS} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-    - >
-      export SERVICES_TO_CHECK=elastic_${CI_PROJECT_NAME}-2
-        COMPOSE_FILE=docker-compose.${CI_PROJECT_NAME}-2.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-2.prod.yml
+      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+  environment:
+    name: pro
+  only:
+    - branches
+  except:
+    - master
+  when: manual
+
+deploy-es6-2-supporting-branch-production:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  variables:
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_es6-2
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.prod.yml
+    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
+    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+  script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      AWS_REGION=${AWS_REGION} OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS}
-      ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS} ELASTIC_USER=${ELASTIC_USER}
-      ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
-      ES_PLUGINS=${ES_PLUGINS} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-    - >
-      export SERVICES_TO_CHECK=elastic_${CI_PROJECT_NAME}-3
-        COMPOSE_FILE=docker-compose.${CI_PROJECT_NAME}-3.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-3.prod.yml
+      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+  environment:
+    name: pro
+  only:
+    - branches
+  except:
+    - master
+  when: manual
+
+deploy-es6-3-supporting-branch-production:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  variables:
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_es6-3
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
+    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
+    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+  script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      AWS_REGION=${AWS_REGION} OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS}
-      ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS} ELASTIC_USER=${ELASTIC_USER}
-      ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
-      ES_PLUGINS=${ES_PLUGINS} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+  environment:
+    name: pro
+  only:
+    - branches
+  except:
+    - master
+  when: manual
+
+deploy-es6-1-stable-branch-production:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  variables:
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_es6-1
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.prod.yml
+    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
+    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+  script:
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+  environment:
+    name: pro
+  only:
+    - master
+  when: manual
+
+deploy-es6-2-stable-branch-production:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  variables:
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_es6-2
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.prod.yml
+    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
+    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+  script:
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+  environment:
+    name: pro
+  only:
+    - master
+  when: manual
+
+deploy-es6-3-stable-branch-production:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  variables:
+    SSH_REMOTE: ${PRO_SSH_REMOTE}
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_es6-3
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
+    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
+    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+  script:
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
   environment:
     name: pro
   only:

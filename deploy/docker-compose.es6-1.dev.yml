@@ -1,0 +1,15 @@
+version: '3.5'
+
+services:
+  es6-1:
+    environment:
+      - cluster.name=es_dev
+      - discovery.zen.minimum_master_nodes=1
+    ports:
+      - target: ${PORT}
+        published: ${PORT}
+        mode: host
+
+volumes:
+  es-vol:
+    name: es6-1-vol
