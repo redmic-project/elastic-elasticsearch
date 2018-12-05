@@ -114,7 +114,7 @@ deploy-es6-1-supporting-branch-production:
     cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
       cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
   environment:
     name: pro
@@ -138,7 +138,7 @@ deploy-es6-2-supporting-branch-production:
     cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
       cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
   environment:
     name: pro
@@ -162,7 +162,7 @@ deploy-es6-3-supporting-branch-production:
     cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
       cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
   environment:
     name: pro
@@ -186,7 +186,7 @@ deploy-es6-1-stable-branch-production:
     cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
       cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
   environment:
     name: pro
@@ -208,7 +208,7 @@ deploy-es6-2-stable-branch-production:
     cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
       cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
   environment:
     name: pro
@@ -230,7 +230,7 @@ deploy-es6-3-stable-branch-production:
     cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
       cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
   environment:
     name: pro
