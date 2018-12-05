@@ -19,4 +19,4 @@ ENV cluster.name="clustername" \
 RUN ulimit -n 65536 \
 	${ES_PATH}/bin/elasticsearch-plugin install --batch repository-s3
 
-VOLUME ["${path.data}"]
+VOLUME [ "${ES_PATH}/data" ]
