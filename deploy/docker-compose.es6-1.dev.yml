@@ -3,13 +3,9 @@ version: '3.5'
 services:
   es6-1:
     environment:
-      - cluster.name=es_dev
-      - discovery.zen.minimum_master_nodes=1
-    ports:
-      - target: ${PORT}
-        published: ${PORT}
-        mode: host
+      - cluster.name=${ES_CLUSTER_NAME:-es_dev}
+      - discovery.zen.minimum_master_nodes=${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-1}
 
 volumes:
   es-vol:
-    name: es6-1-vol
+    name: "${VOLUME_NAME:-es6-1-vol}"

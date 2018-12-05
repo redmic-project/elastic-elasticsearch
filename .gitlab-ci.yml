@@ -110,12 +110,12 @@ deploy-es6-1-supporting-branch-production:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.prod.yml
-    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
-    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+    ES_CLOUD_AWS_S3_ACCESS_KEY: ${PRO_AWS_ACCESS_KEY_ID}
+    ES_CLOUD_AWS_S3_SECRET_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
-      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+      ES_CLOUD_AWS_S3_ACCESS_KEY=${ES_CLOUD_AWS_S3_ACCESS_KEY} ES_CLOUD_AWS_S3_SECRET_KEY=${ES_CLOUD_AWS_S3_SECRET_KEY}
   environment:
     name: pro
   only:
@@ -134,12 +134,12 @@ deploy-es6-2-supporting-branch-production:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.prod.yml
-    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
-    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+    ES_CLOUD_AWS_S3_ACCESS_KEY: ${PRO_AWS_ACCESS_KEY_ID}
+    ES_CLOUD_AWS_S3_SECRET_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
-      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+      ES_CLOUD_AWS_S3_ACCESS_KEY=${ES_CLOUD_AWS_S3_ACCESS_KEY} ES_CLOUD_AWS_S3_SECRET_KEY=${ES_CLOUD_AWS_S3_SECRET_KEY}
   environment:
     name: pro
   only:
@@ -158,12 +158,12 @@ deploy-es6-3-supporting-branch-production:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
-    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
-    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+    ES_CLOUD_AWS_S3_ACCESS_KEY: ${PRO_AWS_ACCESS_KEY_ID}
+    ES_CLOUD_AWS_S3_SECRET_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
-      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+      ES_CLOUD_AWS_S3_ACCESS_KEY=${ES_CLOUD_AWS_S3_ACCESS_KEY} ES_CLOUD_AWS_S3_SECRET_KEY=${ES_CLOUD_AWS_S3_SECRET_KEY}
   environment:
     name: pro
   only:
@@ -182,12 +182,12 @@ deploy-es6-1-stable-branch-production:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.prod.yml
-    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
-    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+    ES_CLOUD_AWS_S3_ACCESS_KEY: ${PRO_AWS_ACCESS_KEY_ID}
+    ES_CLOUD_AWS_S3_SECRET_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
-      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+      ES_CLOUD_AWS_S3_ACCESS_KEY=${ES_CLOUD_AWS_S3_ACCESS_KEY} ES_CLOUD_AWS_S3_SECRET_KEY=${ES_CLOUD_AWS_S3_SECRET_KEY}
   environment:
     name: pro
   only:
@@ -204,12 +204,12 @@ deploy-es6-2-stable-branch-production:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.prod.yml
-    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
-    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+    ES_CLOUD_AWS_S3_ACCESS_KEY: ${PRO_AWS_ACCESS_KEY_ID}
+    ES_CLOUD_AWS_S3_SECRET_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
-      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+      ES_CLOUD_AWS_S3_ACCESS_KEY=${ES_CLOUD_AWS_S3_ACCESS_KEY} ES_CLOUD_AWS_S3_SECRET_KEY=${ES_CLOUD_AWS_S3_SECRET_KEY}
   environment:
     name: pro
   only:
@@ -226,12 +226,12 @@ deploy-es6-3-stable-branch-production:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
-    cloud.aws.s3.access_key: ${PRO_AWS_ACCESS_KEY_ID}
-    cloud.aws.s3.secret_key: ${PRO_AWS_SECRET_ACCESS_KEY}
+    ES_CLOUD_AWS_S3_ACCESS_KEY: ${PRO_AWS_ACCESS_KEY_ID}
+    ES_CLOUD_AWS_S3_SECRET_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
   script:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
-      cloud.aws.s3.access_key=${cloud.aws.s3.access_key} cloud.aws.s3.secret_key=${cloud.aws.s3.secret_key}
+      ES_CLOUD_AWS_S3_ACCESS_KEY=${ES_CLOUD_AWS_S3_ACCESS_KEY} ES_CLOUD_AWS_S3_SECRET_KEY=${ES_CLOUD_AWS_S3_SECRET_KEY}
   environment:
     name: pro
   only:
