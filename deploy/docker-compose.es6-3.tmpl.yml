@@ -14,7 +14,7 @@ services:
       - bootstrap.memory_lock
       - indices.query.bool.max_clause_count
     networks:
-      elastic-net:
+      elastic6-net:
         aliases:
           - es6-3
     volumes:
@@ -41,6 +41,6 @@ services:
 
 networks:
   elastic-net:
-    name: elastic-net
+    name: elastic6-net
     driver: overlay
     attachable: true
