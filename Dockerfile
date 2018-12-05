@@ -6,7 +6,8 @@ LABEL maintainer="info@redmic.es"
 
 ARG ES_PATH="/usr/share/elasticsearch"
 
-ENV cluster.name="clustername" \
+ENV ES_PATH="${ES_PATH}" \
+	cluster.name="clustername" \
 	node.name="nodename" \
 	node.master="true" \
 	node.data="true" \
