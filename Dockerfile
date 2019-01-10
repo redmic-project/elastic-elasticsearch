@@ -18,6 +18,6 @@ ENV ES_PATH="${ES_PATH}" \
 
 RUN ulimit -n 65536 && \
 	${ES_PATH}/bin/elasticsearch-plugin install --batch repository-s3 && \
-	${ES_PATH}/bin/elasticsearch-plugin install --batch com.floragunn:search-guard-6
+	${ES_PATH}/bin/elasticsearch-plugin install --batch com.floragunn:search-guard-6:6.5.1-23.2
 
 VOLUME [ "${ES_PATH}/data" ]
