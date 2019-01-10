@@ -12,12 +12,40 @@ services:
       - path.data=${ES_PATH_DATA}
       - network.host=${ES_NETWORK_HOST}
       - bootstrap.memory_lock=${ES_BOOTSTRAP_MEMORY_LOCK}
+      - searchguard.nodes_dn=${SG_NODES_DN}
+      - searchguard.authcz.admin_dn=${SG_ADMIN_DN}
+      - searchguard.ssl.transport.pemcert_filepath=/certs/node1.pem
+      - searchguard.ssl.transport.pemkey_filepath=/certs/node1.key
+      - searchguard.ssl.transport.pemtrustedcas_filepath=/certs/root-ca.pem
+      - searchguard.ssl.transport.enforce_hostname_verification=false
+      - searchguard.ssl.transport.resolve_hostname=false
+      - searchguard.ssl.http.enabled=true
+      - searchguard.ssl.http.pemcert_filepath=/certs/node1.pem
+      - searchguard.ssl.http.pemkey_filepath=/certs/node1.key
+      - searchguard.ssl.http.pemtrustedcas_filepath=/certs/root-ca.pem
     networks:
       elastic6-net:
         aliases:
           - es6-1
     volumes:
       - es-vol:${ES_PATH_DATA}
+    secrets:
+      - source: ca-pem
+        target: /certs/root-ca.pem
+      - source: ca-key
+        target: /certs/root-ca.key
+      - source: node-pem
+        target: /certs/node1.pem
+      - source: node-key
+        target: /certs/node1.key
+      - source: node-csr
+        target: /certs/node1.csr
+      - source: admin-pem
+        target: /certs/admin.pem
+      - source: admin-key
+        target: /certs/admin.key
+      - source: admin-csr
+        target: /certs/admin.csr
     deploy:
       mode: replicated
       replicas: 1
@@ -41,3 +69,36 @@ networks:
     name: elastic6-net
     driver: overlay
     attachable: true
+
+secrets:
+  ca-pem:
+    name: ${CA_PEM_NAME:-ca-pem}
+    file: ./certs/root-ca.pem
+
+  ca-key:
+    name: ${CA_KEY_NAME:-ca-key}
+    file: ./certs/root-ca.key
+
+  node-pem:
+    name: ${NODE_PEM_NAME:-node-pem}
+    file: ./certs/node1.pem
+
+  node-key:
+    name: ${NODE_KEY_NAME:-node-key}
+    file: ./certs/node1.key
+
+  node-csr:
+    name: ${NODE_CSR_NAME:-node-csr}
+    file: ./certs/node1.csr
+
+  admin-pem:
+    name: ${ADMIN_PEM_NAME:-admin-pem}
+    file: ./certs/admin.pem
+
+  admin-key:
+    name: ${ADMIN_KEY_NAME:-admin-key}
+    file: ./certs/admin.key
+
+  admin-csr:
+    name: ${ADMIN_CSR_NAME:-admin-csr}
+    file: ./certs/admin.csr

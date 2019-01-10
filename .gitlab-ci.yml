@@ -72,7 +72,24 @@ deploy-supporting-branch-develop:
     IMAGE_NAME: ${CI_REGISTRY_IMAGE}
     IMAGE_TAG: ${CI_COMMIT_SHA}
     COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.dev.yml
+    CA_PEM: ${DEV_CA_PEM}
+    CA_KEY: ${DEV_CA_KEY}
+    NODE_PEM: ${DEV_NODE_PEM}
+    NODE_KEY: ${DEV_NODE_KEY}
+    NODE_CSR: ${DEV_NODE_CSR}
+    ADMIN_PEM: ${DEV_ADMIN_PEM}
+    ADMIN_KEY: ${DEV_ADMIN_KEY}
+    ADMIN_CSR: ${DEV_ADMIN_CSR}
   script:
+    - mkdir -p deploy/certs
+    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
+    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
+    - echo "${NODE_PEM}" > "deploy/certs/node1.pem"
+    - echo "${NODE_KEY}" > "deploy/certs/node1.key"
+    - echo "${NODE_CSR}" > "deploy/certs/node1.csr"
+    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
+    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
+    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
     - deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
   environment:
     name: dev
