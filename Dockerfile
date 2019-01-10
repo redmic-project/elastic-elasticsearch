@@ -16,8 +16,8 @@ ENV ES_PATH="${ES_PATH}" \
 	network.host="0.0.0.0" \
 	bootstrap.memory_lock="true"
 
-RUN ulimit -n 65536 \
-	${ES_PATH}/bin/elasticsearch-plugin install --batch repository-s3 \
+RUN ulimit -n 65536 && \
+	${ES_PATH}/bin/elasticsearch-plugin install --batch repository-s3 && \
 	${ES_PATH}/bin/elasticsearch-plugin install --batch com.floragunn:search-guard-6
 
 VOLUME [ "${ES_PATH}/data" ]
