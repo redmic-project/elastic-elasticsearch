@@ -12,40 +12,72 @@ services:
       - path.data=${ES_PATH_DATA}
       - network.host=${ES_NETWORK_HOST}
       - bootstrap.memory_lock=${ES_BOOTSTRAP_MEMORY_LOCK}
-      - searchguard.nodes_dn=${SG_NODES_DN}
-      - searchguard.authcz.admin_dn=${SG_ADMIN_DN}
-      - searchguard.ssl.transport.pemcert_filepath=/certs/node1.pem
-      - searchguard.ssl.transport.pemkey_filepath=/certs/node1.key
-      - searchguard.ssl.transport.pemtrustedcas_filepath=/certs/root-ca.pem
+      - xpack.security.enabled=false
+      - searchguard.nodes_dn.0=${SG_NODE_1_DN}
+      - searchguard.nodes_dn.1=${SG_NODE_2_DN}
+      - searchguard.nodes_dn.2=${SG_NODE_3_DN}
+      - searchguard.authcz.admin_dn.0=${SG_ADMIN_DN}
+      - searchguard.ssl.transport.pemcert_filepath=certs/node.pem
+      - searchguard.ssl.transport.pemkey_filepath=certs/node.key
+      - searchguard.ssl.transport.pemtrustedcas_filepath=certs/root-ca.pem
       - searchguard.ssl.transport.enforce_hostname_verification=false
       - searchguard.ssl.transport.resolve_hostname=false
-      - searchguard.ssl.http.enabled=true
-      - searchguard.ssl.http.pemcert_filepath=/certs/node1.pem
-      - searchguard.ssl.http.pemkey_filepath=/certs/node1.key
-      - searchguard.ssl.http.pemtrustedcas_filepath=/certs/root-ca.pem
+      - searchguard.ssl.http.enabled=false
+      - searchguard.ssl.http.pemcert_filepath=certs/node.pem
+      - searchguard.ssl.http.pemkey_filepath=certs/node.key
+      - searchguard.ssl.http.pemtrustedcas_filepath=certs/root-ca.pem
     networks:
-      elastic6-net:
+      elastic-net:
         aliases:
-          - es6-1
+          - ${ELASTIC_NET_ALIAS:-es6-1}
     volumes:
       - es-vol:${ES_PATH_DATA}
     secrets:
       - source: ca-pem
-        target: /certs/root-ca.pem
+        target: /usr/share/elasticsearch/config/certs/root-ca.pem
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
       - source: ca-key
-        target: /certs/root-ca.key
+        target: /usr/share/elasticsearch/config/certs/root-ca.key
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
       - source: node-pem
-        target: /certs/node1.pem
+        target: /usr/share/elasticsearch/config/certs/node.pem
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
       - source: node-key
-        target: /certs/node1.key
+        target: /usr/share/elasticsearch/config/certs/node.key
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
       - source: node-csr
-        target: /certs/node1.csr
+        target: /usr/share/elasticsearch/config/certs/node.csr
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
       - source: admin-pem
-        target: /certs/admin.pem
+        target: /usr/share/elasticsearch/config/certs/admin.pem
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
       - source: admin-key
-        target: /certs/admin.key
+        target: /usr/share/elasticsearch/config/certs/admin.key
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
       - source: admin-csr
-        target: /certs/admin.csr
+        target: /usr/share/elasticsearch/config/certs/admin.csr
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
+      - source: sg-users
+        target: /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/sg_internal_users.yml
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
     deploy:
       mode: replicated
       replicas: 1
@@ -59,14 +91,14 @@ services:
         reservations:
           memory: 1639M
     healthcheck:
-      test: curl --fail --silent localhost:${PORT}/_cluster/health
+      test: curl --silent localhost:${PORT}/_searchguard/health
       timeout: 10s
       retries: 3
       start_period: 2m
 
 networks:
-  elastic6-net:
-    name: elastic6-net
+  elastic-net:
+    name: ${ELASTIC_NET_NAME:-elastic6-net}
     driver: overlay
     attachable: true
 
@@ -81,15 +113,15 @@ secrets:
 
   node-pem:
     name: ${NODE_PEM_NAME:-node-pem}
-    file: ./certs/node1.pem
+    file: ./certs/node.pem
 
   node-key:
     name: ${NODE_KEY_NAME:-node-key}
-    file: ./certs/node1.key
+    file: ./certs/node.key
 
   node-csr:
     name: ${NODE_CSR_NAME:-node-csr}
-    file: ./certs/node1.csr
+    file: ./certs/node.csr
 
   admin-pem:
     name: ${ADMIN_PEM_NAME:-admin-pem}
@@ -102,3 +134,7 @@ secrets:
   admin-csr:
     name: ${ADMIN_CSR_NAME:-admin-csr}
     file: ./certs/admin.csr
+
+  sg-users:
+    name: ${SG_USERS_NAME:-sg-users}
+    file: ./config/sg_internal_users.yml
