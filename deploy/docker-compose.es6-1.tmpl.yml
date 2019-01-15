@@ -73,6 +73,7 @@ services:
         mode: 0600
         uid: '1000'
         gid: '1000'
+    configs:
       - source: sg-users
         target: /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/sg_internal_users.yml
         mode: 0600
@@ -135,6 +136,7 @@ secrets:
     name: ${ADMIN_CSR_NAME:-admin-csr}
     file: ./certs/admin.csr
 
+configs:
   sg-users:
     name: ${SG_USERS_NAME:-sg-users}
     file: ./config/sg_internal_users.yml

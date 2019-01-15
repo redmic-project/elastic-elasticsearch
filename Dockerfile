@@ -1,4 +1,4 @@
-ARG PARENT_IMAGE_TAG="6.5.1"
+ARG PARENT_IMAGE_TAG="6.5.4"
 
 FROM docker.elastic.co/elasticsearch/elasticsearch:${PARENT_IMAGE_TAG}
 
@@ -18,6 +18,6 @@ ENV ES_PATH="${ES_PATH}" \
 
 RUN ulimit -n 65536 && \
 	${ES_PATH}/bin/elasticsearch-plugin install --batch repository-s3 && \
-	${ES_PATH}/bin/elasticsearch-plugin install --batch com.floragunn:search-guard-6:6.5.1-23.2
+	${ES_PATH}/bin/elasticsearch-plugin install --batch com.floragunn:search-guard-6:6.5.4-24.0
 
 VOLUME [ "${ES_PATH}/data" ]
