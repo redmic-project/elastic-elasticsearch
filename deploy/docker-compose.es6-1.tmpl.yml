@@ -26,7 +26,6 @@ services:
       - searchguard.ssl.http.pemcert_filepath=certs/node.pem
       - searchguard.ssl.http.pemkey_filepath=certs/node.key
       - searchguard.ssl.http.pemtrustedcas_filepath=certs/root-ca.pem
-      - searchguard.dynamic.http.anonymous_auth_enabled=true
     networks:
       elastic-net:
         aliases:
@@ -77,6 +76,11 @@ services:
     configs:
       - source: sg-users
         target: /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/sg_internal_users.yml
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
+      - source: sg-config
+        target: /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/sg_config.yml
         mode: 0600
         uid: '1000'
         gid: '1000'
@@ -141,3 +145,7 @@ configs:
   sg-users:
     name: ${SG_USERS_NAME:-sg-users}
     file: ./config/sg_internal_users.yml
+
+  sg-config:
+    name: ${SG_CONFIG_NAME:-sg-config}
+    file: ./config/sg_config.yml
