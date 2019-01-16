@@ -26,6 +26,7 @@ services:
       - searchguard.ssl.http.pemcert_filepath=certs/node.pem
       - searchguard.ssl.http.pemkey_filepath=certs/node.key
       - searchguard.ssl.http.pemtrustedcas_filepath=certs/root-ca.pem
+      - searchguard.dynamic.http.anonymous_auth_enabled=true
     networks:
       elastic-net:
         aliases:
