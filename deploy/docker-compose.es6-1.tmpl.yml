@@ -84,6 +84,11 @@ services:
         mode: 0600
         uid: '1000'
         gid: '1000'
+      - source: sg-roles-mapping
+        target: /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/sg_roles_mapping.yml
+        mode: 0600
+        uid: '1000'
+        gid: '1000'
     deploy:
       mode: replicated
       replicas: 1
@@ -149,3 +154,7 @@ configs:
   sg-config:
     name: ${SG_CONFIG_NAME:-sg-config}
     file: ./config/sg_config.yml
+
+  sg-roles-mapping:
+    name: ${SG_ROLES_MAPPING_NAME:-sg-roles-mapping}
+    file: ./config/sg_roles_mapping.yml
