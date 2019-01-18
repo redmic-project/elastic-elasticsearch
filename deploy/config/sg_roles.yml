@@ -46,7 +46,10 @@ sg_anonymous_role:
   cluster:
     - CLUSTER_COMPOSITE_OPS_RO
   indices:
-    'public-*':
+    'tracking-vessel-*':
+      '*':
+        - READ
+    'realtime.tracking.vessels':
       '*':
         - READ
 
