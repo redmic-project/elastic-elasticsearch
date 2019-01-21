@@ -7,5 +7,8 @@ services:
       - discovery.zen.minimum_master_nodes=${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-1}
 
 volumes:
-  es-vol:
-    name: "${VOLUME_NAME:-es6-1-vol}"
+  es-data-vol:
+    name: "${ES_DATA_VOL_NAME:-es6-1-vol}"
+
+  es-conf-vol:
+    name: "${ES_CONF_VOL_NAME:-es6-1-conf-vol}"
