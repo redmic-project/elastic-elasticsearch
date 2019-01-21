@@ -17,15 +17,15 @@ services:
       - searchguard.nodes_dn.1=${SG_NODE_2_DN}
       - searchguard.nodes_dn.2=${SG_NODE_3_DN}
       - searchguard.authcz.admin_dn.0=${SG_ADMIN_DN}
-      - searchguard.ssl.transport.pemcert_filepath=../certs/node.pem
-      - searchguard.ssl.transport.pemkey_filepath=../certs/node.key
-      - searchguard.ssl.transport.pemtrustedcas_filepath=../certs/root-ca.pem
+      - searchguard.ssl.transport.pemcert_filepath=certs/node.pem
+      - searchguard.ssl.transport.pemkey_filepath=certs/node.key
+      - searchguard.ssl.transport.pemtrustedcas_filepath=certs/root-ca.pem
       - searchguard.ssl.transport.enforce_hostname_verification=false
       - searchguard.ssl.transport.resolve_hostname=false
       - searchguard.ssl.http.enabled=false
-      - searchguard.ssl.http.pemcert_filepath=../certs/node.pem
-      - searchguard.ssl.http.pemkey_filepath=../certs/node.key
-      - searchguard.ssl.http.pemtrustedcas_filepath=../certs/root-ca.pem
+      - searchguard.ssl.http.pemcert_filepath=certs/node.pem
+      - searchguard.ssl.http.pemkey_filepath=certs/node.key
+      - searchguard.ssl.http.pemtrustedcas_filepath=certs/root-ca.pem
     networks:
       elastic-net:
         aliases:
@@ -36,42 +36,42 @@ services:
       - es-conf-vol:/usr/share/elasticsearch/config
     secrets:
       - source: ca-pem
-        target: /usr/share/elasticsearch/certs/root-ca.pem
+        target: /usr/share/elasticsearch/config/certs/root-ca.pem
         mode: 0600
         uid: '1000'
         gid: '1000'
       - source: ca-key
-        target: /usr/share/elasticsearch/certs/root-ca.key
+        target: /usr/share/elasticsearch/config/certs/root-ca.key
         mode: 0600
         uid: '1000'
         gid: '1000'
       - source: node-pem
-        target: /usr/share/elasticsearch/certs/node.pem
+        target: /usr/share/elasticsearch/config/certs/node.pem
         mode: 0600
         uid: '1000'
         gid: '1000'
       - source: node-key
-        target: /usr/share/elasticsearch/certs/node.key
+        target: /usr/share/elasticsearch/config/certs/node.key
         mode: 0600
         uid: '1000'
         gid: '1000'
       - source: node-csr
-        target: /usr/share/elasticsearch/certs/node.csr
+        target: /usr/share/elasticsearch/config/certs/node.csr
         mode: 0600
         uid: '1000'
         gid: '1000'
       - source: admin-pem
-        target: /usr/share/elasticsearch/certs/admin.pem
+        target: /usr/share/elasticsearch/config/certs/admin.pem
         mode: 0600
         uid: '1000'
         gid: '1000'
       - source: admin-key
-        target: /usr/share/elasticsearch/certs/admin.key
+        target: /usr/share/elasticsearch/config/certs/admin.key
         mode: 0600
         uid: '1000'
         gid: '1000'
       - source: admin-csr
-        target: /usr/share/elasticsearch/certs/admin.csr
+        target: /usr/share/elasticsearch/config/certs/admin.csr
         mode: 0600
         uid: '1000'
         gid: '1000'
