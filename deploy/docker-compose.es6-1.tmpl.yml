@@ -26,6 +26,8 @@ services:
       - searchguard.ssl.http.pemcert_filepath=certs/node.pem
       - searchguard.ssl.http.pemkey_filepath=certs/node.key
       - searchguard.ssl.http.pemtrustedcas_filepath=certs/root-ca.pem
+      - S3_ACCESS_KEY
+      - S3_SECRET_KEY
     networks:
       elastic-net:
         aliases:

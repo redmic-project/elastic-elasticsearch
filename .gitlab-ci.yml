@@ -85,6 +85,8 @@ deploy-supporting-branch-develop:
     NODE_KEY: ${DEV_NODE_1_KEY}
     NODE_CSR: ${DEV_NODE_1_CSR}
     SG_USERS: ${DEV_SG_USERS}
+    S3_ACCESS_KEY: ${DEV_S3_ACCESS_KEY}
+    S3_SECRET_KEY: ${DEV_S3_SECRET_KEY}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
@@ -99,6 +101,7 @@ deploy-supporting-branch-develop:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
       SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
     name: dev
   only:
@@ -130,6 +133,8 @@ deploy-stable-branch-develop:
     NODE_KEY: ${DEV_NODE_1_KEY}
     NODE_CSR: ${DEV_NODE_1_CSR}
     SG_USERS: ${DEV_SG_USERS}
+    S3_ACCESS_KEY: ${DEV_S3_ACCESS_KEY}
+    S3_SECRET_KEY: ${DEV_S3_SECRET_KEY}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
@@ -144,6 +149,7 @@ deploy-stable-branch-develop:
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
       SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
     name: dev
   only:

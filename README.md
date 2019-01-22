@@ -96,16 +96,20 @@ $ bash sgadmin.sh -cd /usr/share/elasticsearch/plugins/search-guard-6/sgconfig -
 In order to create backups, you must configure a snapshot repository first. Run these command once inside running container:
 
 ```
-$ echo "YOUR ACCESS KEY" | elasticsearch-keystore add --stdin s3.client.default.access_key
-$ echo "YOUR SECRET KEY" | elasticsearch-keystore add --stdin s3.client.default.secret_key
+$ echo "${S3_ACCESS_KEY}" | elasticsearch-keystore add --stdin s3.client.default.access_key
+$ echo "${S3_SECRET_KEY}" | elasticsearch-keystore add --stdin s3.client.default.secret_key
 
-$ curl -XPOST -u user:pass 'http://localhost:9200/_nodes/reload_secure_settings'
+$ curl -XPOST -u <user>:<pass> 'http://localhost:9200/_nodes/reload_secure_settings'
+// This can be run through Kibana console:
+// POST _nodes/reload_secure_settings
 
-$ curl -XPUT -u user:pass 'http://localhost:9200/_snapshot/s3-backup' -d '{
+$ curl -XPUT -u <user>:<pass> 'http://localhost:9200/_snapshot/s3-backup' -d '{
 	"type": "s3",
 	"settings": {
 		"bucket": "redmic.elasticsearch.backup",
 		"region": "eu-west-1"
 	}
 }'
+// This can be run through Kibana console:
+// PUT _snapshot/s3-backup { ... }
 ```
