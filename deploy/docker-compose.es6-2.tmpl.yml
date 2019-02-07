@@ -99,13 +99,13 @@ secrets:
     external: true
 
   node-pem:
-    name: ${NODE_PEM_NAME:-node-pem}
+    name: ${NODE_PEM_NAME:-node-2-pem}
     file: ./certs/node.pem
 
   node-key:
-    name: ${NODE_KEY_NAME:-node-key}
+    name: ${NODE_KEY_NAME:-node-2-key}
     file: ./certs/node.key
 
   node-csr:
-    name: ${NODE_CSR_NAME:-node-csr}
+    name: ${NODE_CSR_NAME:-node-2-csr}
     file: ./certs/node.csr
