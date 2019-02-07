@@ -62,7 +62,7 @@ container-scanning:
   artifacts:
     paths: [gl-sast-container-report.json]
 
-deploy-supporting-branch-develop:
+deploy-es6-1-supporting-branch-develop:
   stage: deploy
   image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
   variables:
@@ -98,6 +98,46 @@ deploy-supporting-branch-develop:
     - echo "${NODE_KEY}" > "deploy/certs/node.key"
     - echo "${NODE_CSR}" > "deploy/certs/node.csr"
     - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
+  environment:
+    name: dev
+  only:
+    - branches
+  except:
+    - master
+  when: manual
+
+deploy-es6-2-supporting-branch-develop:
+  stage: deploy
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  variables:
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    STACK: elastic
+    SERVICES_TO_CHECK: elastic_es6-2
+    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    IMAGE_TAG: ${CI_COMMIT_SHA}
+    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.dev.yml
+    SG_ADMIN_DN: ${DEV_SG_ADMIN_DN}
+    SG_NODE_1_DN: ${DEV_SG_NODE_1_DN}
+    SG_NODE_2_DN: ${DEV_SG_NODE_2_DN}
+    SG_NODE_3_DN: ${DEV_SG_NODE_3_DN}
+    CA_PEM: ${DEV_CA_PEM}
+    CA_KEY: ${DEV_CA_KEY}
+    NODE_PEM: ${DEV_NODE_2_PEM}
+    NODE_KEY: ${DEV_NODE_2_KEY}
+    NODE_CSR: ${DEV_NODE_2_CSR}
+    S3_ACCESS_KEY: ${DEV_S3_ACCESS_KEY}
+    S3_SECRET_KEY: ${DEV_S3_SECRET_KEY}
+  script:
+    - mkdir -p deploy/certs deploy/config
+    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
+    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
+    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
+    - echo "${NODE_KEY}" > "deploy/certs/node.key"
+    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
       SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
