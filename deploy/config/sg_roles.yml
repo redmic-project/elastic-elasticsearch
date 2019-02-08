@@ -49,7 +49,7 @@ sg_anonymous_role:
     'tracking-vessel-*':
       '*':
         - READ
-    'realtime.tracking.vessels':
+    'timeseries-*':
       '*':
         - READ
 
