@@ -27,7 +27,7 @@ services:
       - searchguard.ssl.http.pemkey_filepath=certs/node.key
       - searchguard.ssl.http.pemtrustedcas_filepath=certs/root-ca.pem
       - searchguard.enable_snapshot_restore_privilege=true
-      - discovery.zen.ping.unicast.hosts=${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS:-['es6-2', 'es6-3']}
+      - discovery.zen.ping.unicast.hosts=${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS:-es6-2,es6-3}
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
     networks:

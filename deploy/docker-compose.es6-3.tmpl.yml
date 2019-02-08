@@ -5,7 +5,7 @@ services:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
-      - node.name=${ES_NODE_NAME:-es6-2}
+      - node.name=${ES_NODE_NAME:-es6-3}
       - node.master=${ES_NODE_MASTER}
       - node.data=${ES_NODE_DATA}
       - node.ingest=${ES_NODE_INGEST}
@@ -26,7 +26,7 @@ services:
       - searchguard.ssl.http.pemkey_filepath=certs/node.key
       - searchguard.ssl.http.pemtrustedcas_filepath=certs/root-ca.pem
       - searchguard.enable_snapshot_restore_privilege=true
-      - discovery.zen.ping.unicast.hosts=${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS:-['es6-1', 'es6-2']}
+      - discovery.zen.ping.unicast.hosts=${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS:-es6-1,es6-2}
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
     networks:
@@ -100,13 +100,13 @@ secrets:
     external: true
 
   node-pem:
-    name: ${NODE_PEM_NAME:-node-2-pem}
+    name: ${NODE_PEM_NAME:-node-3-pem}
     file: ./certs/node.pem
 
   node-key:
-    name: ${NODE_KEY_NAME:-node-2-key}
+    name: ${NODE_KEY_NAME:-node-3-key}
     file: ./certs/node.key
 
   node-csr:
-    name: ${NODE_CSR_NAME:-node-2-csr}
+    name: ${NODE_CSR_NAME:-node-3-csr}
     file: ./certs/node.csr
