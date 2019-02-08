@@ -1,14 +1,14 @@
 version: '3.5'
 
 services:
-  es6-1:
+  es6-2:
     environment:
       - cluster.name=${ES_CLUSTER_NAME:-es_dev}
       - discovery.zen.minimum_master_nodes=${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-1}
 
 volumes:
   es-data-vol:
-    name: "${ES_DATA_VOL_NAME:-es6-1-data-vol}"
+    name: "${ES_DATA_VOL_NAME:-es6-2-data-vol}"
 
   es-conf-vol:
-    name: "${ES_CONF_VOL_NAME:-es6-1-conf-vol}"
+    name: "${ES_CONF_VOL_NAME:-es6-2-conf-vol}"
