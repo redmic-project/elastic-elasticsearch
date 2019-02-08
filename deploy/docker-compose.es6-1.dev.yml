@@ -8,7 +8,7 @@ services:
 
 volumes:
   es-data-vol:
-    name: "${ES_DATA_VOL_NAME:-es6-1-vol}"
+    name: "${ES_DATA_VOL_NAME:-es6-1-data-vol}"
 
   es-conf-vol:
     name: "${ES_CONF_VOL_NAME:-es6-1-conf-vol}"

@@ -18,7 +18,8 @@ services:
         aliases:
           - es6-3
     volumes:
-      - es-vol:${ES_PATH_DATA}
+      - es-data-vol:${ES_PATH_DATA}
+      - es-conf-vol:/usr/share/elasticsearch/config
     deploy:
       mode: replicated
       replicas: 1
