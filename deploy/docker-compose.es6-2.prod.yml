@@ -5,6 +5,7 @@ services:
     environment:
       - cluster.name=${ES_CLUSTER_NAME:-es_pro}
       - discovery.zen.minimum_master_nodes=${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-2}
+      - TAKE_FILE_OWNERSHIP=1000:0
     deploy:
       placement:
         constraints:
