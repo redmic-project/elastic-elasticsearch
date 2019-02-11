@@ -16,6 +16,7 @@ services:
       - searchguard.nodes_dn.0=${SG_NODE_1_DN}
       - searchguard.nodes_dn.1=${SG_NODE_2_DN}
       - searchguard.nodes_dn.2=${SG_NODE_3_DN}
+      - searchguard.authcz.admin_dn.0=${SG_ADMIN_DN}
       - searchguard.ssl.transport.pemcert_filepath=certs/node.pem
       - searchguard.ssl.transport.pemkey_filepath=certs/node.key
       - searchguard.ssl.transport.pemtrustedcas_filepath=certs/root-ca.pem
