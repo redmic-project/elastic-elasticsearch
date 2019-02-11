@@ -5,8 +5,6 @@ services:
     environment:
       - cluster.name=${ES_CLUSTER_NAME:-es_pro}
       - discovery.zen.minimum_master_nodes=${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-2}
-      - cloud.aws.s3.access_key=${ES_CLOUD_AWS_S3_ACCESS_KEY}
-      - cloud.aws.s3.secret_key=${ES_CLOUD_AWS_S3_SECRET_KEY}
     deploy:
       placement:
         constraints:
