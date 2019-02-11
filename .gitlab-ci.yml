@@ -336,9 +336,9 @@ deploy-es6-3-supporting-branch-production:
     SG_NODE_3_DN: ${PRO_SG_NODE_3_DN}
     CA_PEM: ${PRO_CA_PEM}
     CA_KEY: ${PRO_CA_KEY}
-    NODE_PEM: ${PRO_NODE_2_PEM}
-    NODE_KEY: ${PRO_NODE_2_KEY}
-    NODE_CSR: ${PRO_NODE_2_CSR}
+    NODE_PEM: ${PRO_NODE_3_PEM}
+    NODE_KEY: ${PRO_NODE_3_KEY}
+    NODE_CSR: ${PRO_NODE_3_CSR}
     S3_ACCESS_KEY: ${PRO_S3_ACCESS_KEY}
     S3_SECRET_KEY: ${PRO_S3_SECRET_KEY}
   script:
