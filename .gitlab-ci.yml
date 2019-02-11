@@ -64,7 +64,7 @@ container-scanning:
 
 deploy-es6-1-supporting-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: elastic
@@ -112,7 +112,7 @@ deploy-es6-1-supporting-branch-develop:
 
 deploy-es6-2-supporting-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: elastic
@@ -151,7 +151,7 @@ deploy-es6-2-supporting-branch-develop:
 
 deploy-es6-3-supporting-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: elastic
@@ -190,7 +190,7 @@ deploy-es6-3-supporting-branch-develop:
 
 deploy-stable-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: elastic
@@ -236,7 +236,7 @@ deploy-stable-branch-develop:
 
 deploy-es6-1-supporting-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: elastic
@@ -284,7 +284,7 @@ deploy-es6-1-supporting-branch-production:
 
 deploy-es6-2-supporting-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: elastic
@@ -323,7 +323,7 @@ deploy-es6-2-supporting-branch-production:
 
 deploy-es6-3-supporting-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: elastic
@@ -362,7 +362,7 @@ deploy-es6-3-supporting-branch-production:
 
 deploy-es6-1-stable-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: elastic
@@ -384,7 +384,7 @@ deploy-es6-1-stable-branch-production:
 
 deploy-es6-2-stable-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: elastic
@@ -406,7 +406,7 @@ deploy-es6-2-stable-branch-production:
 
 deploy-es6-3-stable-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: elastic
