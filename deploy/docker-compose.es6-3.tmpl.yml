@@ -4,7 +4,6 @@ services:
   es6-3:
     image: ${IMAGE_NAME}:${IMAGE_TAG:-latest}
     environment:
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
       - node.name=${ES_NODE_NAME:-es6-3}
       - node.master=${ES_NODE_MASTER}
       - node.data=${ES_NODE_DATA}
@@ -64,18 +63,14 @@ services:
         mode: 0600
         uid: '1000'
         gid: '1000'
+    logging:
+      driver: json-file
     deploy:
       mode: replicated
       replicas: 1
       restart_policy:
         delay: 1m
         window: 3m
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          memory: 1639M
     healthcheck:
       test: curl --silent localhost:${PORT}/_searchguard/health
       timeout: 10s
