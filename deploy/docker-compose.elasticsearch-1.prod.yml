@@ -8,6 +8,12 @@ services:
       - ES_NODE_NAME={{.Service.Name}}
       - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=['elasticsearch-1', 'elasticsearch-2', 'elasticsearch-3']
       - USER_MANAGEMENT_DELAY=200
+      - ES_XPACK_SECURITY_ENABLED
+    healthcheck:
+      test: curl --silent localhost:${PORT}/_cluster/health
+      timeout: 10s
+      retries: 3
+      start_period: 2m
     deploy:
       placement:
         constraints:

@@ -1,5 +1,11 @@
 #!/bin/sh
 
+if [ "${ES_XPACK_SECURITY_ENABLED}" = "false" ]
+then
+	echo "Security is disabled, aborting user management.."
+	exit 0
+fi
+
 elasticAdmin=elastic
 retryManageUsers=1
 

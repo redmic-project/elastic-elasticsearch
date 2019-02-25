@@ -32,13 +32,6 @@ services:
           memory: 1G
         reservations:
           memory: 820M
-    #healthcheck:
-      #test: >
-        #status=$$(curl --write-out %{http_code} --silent --output /dev/null -u "${ELASTIC_USER}:${ELASTIC_USER_PASS}" localhost:${PORT1}/_cluster/health);
-        #[ "$${status}" -eq "200" ] || [ "$${status}" -eq "401" ]
-      #timeout: 10s
-      #retries: 3
-      #start_period: 2m
 
 networks:
   elastic-net:
