@@ -8,7 +8,7 @@ services:
       - ES_NODE_NAME=node-1
       - ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=1
       - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=elasticsearch-1
-      - ES_XPACK_SECURITY_ENABLED=false
+      - ES_XPACK_SECURITY_ENABLED=true
     ports:
       - target: ${PORT1}
         published: ${PORT1}
@@ -19,4 +19,4 @@ services:
 
 volumes:
   elasticsearch-vol:
-    name: elasticsearch-vol
+    name: ${ELASTICSEARCH_VOL_NAME:-elasticsearch-reloaded-vol}

@@ -29,8 +29,9 @@ for plugin in "${PLUGINS[@]}"; do
     fi
 
     echo "${pluginsInstalled}" | grep "${plugin}"
-    if [ "${?}" -ne "0" ]; then
-        gosu elasticsearch ${ES_PATH}/bin/elasticsearch-plugin install --batch ${plugin}
+    if [ "${?}" -ne "0" ]
+    then
+        ${ES_PATH}/bin/elasticsearch-plugin install --batch ${plugin}
     else
         echo "Plugin ${plugin} already installed!"
     fi
