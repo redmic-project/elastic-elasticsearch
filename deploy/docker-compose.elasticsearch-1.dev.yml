@@ -16,6 +16,14 @@ services:
       - target: ${PORT2}
         published: ${PORT2}
         mode: host
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 820M
 
 volumes:
   elasticsearch-vol:
