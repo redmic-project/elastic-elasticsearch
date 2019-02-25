@@ -34,13 +34,14 @@ services:
           - engine.labels.availability_zone == ${AWS_REGION}c
       restart_policy:
         condition: on-failure
-        delay: 1m
+        delay: 10s
         window: 3m
       resources:
         limits:
           cpus: '1'
           memory: 2G
         reservations:
+          cpus: '0.2'
           memory: 1639M
 
 networks:

@@ -19,6 +19,13 @@ services:
         constraints:
           - node.role == worker
           - engine.labels.availability_zone == ${AWS_REGION}a
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.2'
+          memory: 1639M
 
 volumes:
   elasticsearch-vol:
