@@ -10,6 +10,9 @@ services:
 
 variables:
   DOCKER_DRIVER: overlay2
+  AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
+  AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+  ES_PLUGINS: repository-s3
 
 docker-build-commit-non-master-branches:
   stage: package
@@ -71,36 +74,9 @@ container-scanning:
   artifacts:
     paths: [gl-sast-container-report.json]
 
-deploy-dev:
-  stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_${CI_PROJECT_NAME}-1
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
-    COMPOSE_FILE: docker-compose.${CI_PROJECT_NAME}-1.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-1.dev.yml
-    OLD_ELASTIC_ADMIN_PASS: ${DEV_OLD_ELASTIC_ADMIN_PASS}
-    ELASTIC_ADMIN_PASS: ${DEV_ELASTIC_ADMIN_PASS}
-    ELASTIC_USER: ${DEV_ELASTIC_USER}
-    ELASTIC_USER_PASS: ${DEV_ELASTIC_USER_PASS}
-    ELASTIC_USER_ROLE: ${DEV_ELASTIC_USER_ROLE}
-  script:
-    - create-nets.sh elastic-net
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS} ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS}
-      ELASTIC_USER=${ELASTIC_USER} ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
-  environment:
-    name: dev
-  only:
-    - dev
-  when: manual
-
 deploy-supporting-branch:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
     STACK: elastic
@@ -118,18 +94,19 @@ deploy-supporting-branch:
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
       OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS} ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS}
       ELASTIC_USER=${ELASTIC_USER} ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
+      ES_PLUGINS=${ES_PLUGINS} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
   environment:
     name: dev
   only:
     - branches
   except:
     - master
-    - dev
   when: manual
 
 deploy-pro:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:latest
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
     STACK: elastic
@@ -150,6 +127,8 @@ deploy-pro:
       AWS_REGION=${AWS_REGION} OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS}
       ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS} ELASTIC_USER=${ELASTIC_USER}
       ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
+      ES_PLUGINS=${ES_PLUGINS} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     - >
       export SERVICES_TO_CHECK=elastic_${CI_PROJECT_NAME}-2
         COMPOSE_FILE=docker-compose.${CI_PROJECT_NAME}-2.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-2.prod.yml
@@ -158,6 +137,8 @@ deploy-pro:
       AWS_REGION=${AWS_REGION} OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS}
       ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS} ELASTIC_USER=${ELASTIC_USER}
       ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
+      ES_PLUGINS=${ES_PLUGINS} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     - >
       export SERVICES_TO_CHECK=elastic_${CI_PROJECT_NAME}-3
         COMPOSE_FILE=docker-compose.${CI_PROJECT_NAME}-3.tmpl.yml:docker-compose.${CI_PROJECT_NAME}-3.prod.yml
@@ -166,6 +147,8 @@ deploy-pro:
       AWS_REGION=${AWS_REGION} OLD_ELASTIC_ADMIN_PASS=${OLD_ELASTIC_ADMIN_PASS}
       ELASTIC_ADMIN_PASS=${ELASTIC_ADMIN_PASS} ELASTIC_USER=${ELASTIC_USER}
       ELASTIC_USER_PASS=${ELASTIC_USER_PASS} ELASTIC_USER_ROLE=${ELASTIC_USER_ROLE}
+      ES_PLUGINS=${ES_PLUGINS} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
   environment:
     name: pro
   only:

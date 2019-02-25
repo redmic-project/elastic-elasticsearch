@@ -20,7 +20,7 @@ xpack.graph.enabled: false
 xpack.ml.enabled: false
 xpack.monitoring.enabled: false
 
-xpack.security.enabled: true
+xpack.security.enabled: ${ES_XPACK_SECURITY_ENABLED}
 xpack.security.audit.enabled: true
 
 xpack.watcher.enabled: false

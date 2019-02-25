@@ -8,23 +8,17 @@ services:
       - ES_NODE_NAME={{.Service.Name}}
       - ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS=['elasticsearch-1', 'elasticsearch-2', 'elasticsearch-3']
       - USER_MANAGEMENT_DELAY=200
+      - ES_XPACK_SECURITY_ENABLED
+    healthcheck:
+      test: curl --silent localhost:${PORT}/_cluster/health
+      timeout: 10s
+      retries: 3
+      start_period: 2m
     deploy:
-      mode: replicated
-      replicas: 1
       placement:
         constraints:
           - node.role == worker
           - engine.labels.availability_zone == ${AWS_REGION}a
-      restart_policy:
-        condition: on-failure
-        delay: 1m
-        window: 3m
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          memory: 1639M
 
 volumes:
   elasticsearch-vol:
