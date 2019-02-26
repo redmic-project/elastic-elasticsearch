@@ -3,7 +3,7 @@ version: '3.5'
 services:
   elasticsearch-2:
     healthcheck:
-      test: curl --silent localhost:${PORT}/_cluster/health
+      test: curl --silent localhost:${PORT1}/_cluster/health
       timeout: 10s
       retries: 3
       start_period: 2m
