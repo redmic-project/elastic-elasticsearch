@@ -10,6 +10,9 @@ services:
 
 variables:
   DOCKER_DRIVER: overlay2
+  STACK: elastic
+  IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+  IMAGE_TAG: ${CI_COMMIT_SHA}
 
 docker-build-commit-non-master-branches:
   stage: package
@@ -64,46 +67,31 @@ container-scanning:
 
 deploy-es6-1-supporting-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-1
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-1
     COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.dev.yml
-    SG_ADMIN_DN: ${DEV_SG_ADMIN_DN}
-    SG_NODE_1_DN: ${DEV_SG_NODE_1_DN}
-    SG_NODE_2_DN: ${DEV_SG_NODE_2_DN}
-    SG_NODE_3_DN: ${DEV_SG_NODE_3_DN}
-    CA_PEM: ${DEV_CA_PEM}
-    CA_KEY: ${DEV_CA_KEY}
-    ADMIN_PEM: ${DEV_ADMIN_PEM}
-    ADMIN_KEY: ${DEV_ADMIN_KEY}
-    ADMIN_CSR: ${DEV_ADMIN_CSR}
-    NODE_PEM: ${DEV_NODE_1_PEM}
-    NODE_KEY: ${DEV_NODE_1_KEY}
-    NODE_CSR: ${DEV_NODE_1_CSR}
-    SG_USERS: ${DEV_SG_USERS}
-    S3_ACCESS_KEY: ${DEV_S3_ACCESS_KEY}
-    S3_SECRET_KEY: ${DEV_S3_SECRET_KEY}
+    NODE_PEM: ${NODE_1_PEM}
+    NODE_KEY: ${NODE_1_KEY}
+    NODE_CSR: ${NODE_1_CSR}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
     - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
-    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
-    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
     - echo "${NODE_PEM}" > "deploy/certs/node.pem"
     - echo "${NODE_KEY}" > "deploy/certs/node.key"
     - echo "${NODE_CSR}" > "deploy/certs/node.csr"
+    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
+    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
+    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
     - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
       SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
       S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: dev
+    name: dev/es6-1
   only:
     - branches
   except:
@@ -112,24 +100,14 @@ deploy-es6-1-supporting-branch-develop:
 
 deploy-es6-2-supporting-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-2
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-2
     COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.dev.yml
-    SG_NODE_1_DN: ${DEV_SG_NODE_1_DN}
-    SG_NODE_2_DN: ${DEV_SG_NODE_2_DN}
-    SG_NODE_3_DN: ${DEV_SG_NODE_3_DN}
-    CA_PEM: ${DEV_CA_PEM}
-    CA_KEY: ${DEV_CA_KEY}
-    NODE_PEM: ${DEV_NODE_2_PEM}
-    NODE_KEY: ${DEV_NODE_2_KEY}
-    NODE_CSR: ${DEV_NODE_2_CSR}
-    S3_ACCESS_KEY: ${DEV_S3_ACCESS_KEY}
-    S3_SECRET_KEY: ${DEV_S3_SECRET_KEY}
+    NODE_PEM: ${NODE_2_PEM}
+    NODE_KEY: ${NODE_2_KEY}
+    NODE_CSR: ${NODE_2_CSR}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
@@ -138,11 +116,11 @@ deploy-es6-2-supporting-branch-develop:
     - echo "${NODE_KEY}" > "deploy/certs/node.key"
     - echo "${NODE_CSR}" > "deploy/certs/node.csr"
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
       SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
       S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: dev
+    name: dev/es6-2
   only:
     - branches
   except:
@@ -151,24 +129,14 @@ deploy-es6-2-supporting-branch-develop:
 
 deploy-es6-3-supporting-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-3
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-3
     COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.dev.yml
-    SG_NODE_1_DN: ${DEV_SG_NODE_1_DN}
-    SG_NODE_2_DN: ${DEV_SG_NODE_2_DN}
-    SG_NODE_3_DN: ${DEV_SG_NODE_3_DN}
-    CA_PEM: ${DEV_CA_PEM}
-    CA_KEY: ${DEV_CA_KEY}
-    NODE_PEM: ${DEV_NODE_2_PEM}
-    NODE_KEY: ${DEV_NODE_2_KEY}
-    NODE_CSR: ${DEV_NODE_2_CSR}
-    S3_ACCESS_KEY: ${DEV_S3_ACCESS_KEY}
-    S3_SECRET_KEY: ${DEV_S3_SECRET_KEY}
+    NODE_PEM: ${NODE_3_PEM}
+    NODE_KEY: ${NODE_3_KEY}
+    NODE_CSR: ${NODE_3_CSR}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
@@ -177,105 +145,129 @@ deploy-es6-3-supporting-branch-develop:
     - echo "${NODE_KEY}" > "deploy/certs/node.key"
     - echo "${NODE_CSR}" > "deploy/certs/node.csr"
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
       SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
       S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: dev
+    name: dev/es6-3
   only:
     - branches
   except:
     - master
   when: manual
 
-deploy-stable-branch-develop:
+deploy-es6-1-stable-branch-develop:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${DEV_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-1
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-1
     COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.dev.yml
-    SG_ADMIN_DN: ${DEV_SG_ADMIN_DN}
-    SG_NODE_1_DN: ${DEV_SG_NODE_1_DN}
-    SG_NODE_2_DN: ${DEV_SG_NODE_2_DN}
-    SG_NODE_3_DN: ${DEV_SG_NODE_3_DN}
-    CA_PEM: ${DEV_CA_PEM}
-    CA_KEY: ${DEV_CA_KEY}
-    ADMIN_PEM: ${DEV_ADMIN_PEM}
-    ADMIN_KEY: ${DEV_ADMIN_KEY}
-    ADMIN_CSR: ${DEV_ADMIN_CSR}
-    NODE_PEM: ${DEV_NODE_1_PEM}
-    NODE_KEY: ${DEV_NODE_1_KEY}
-    NODE_CSR: ${DEV_NODE_1_CSR}
-    SG_USERS: ${DEV_SG_USERS}
-    S3_ACCESS_KEY: ${DEV_S3_ACCESS_KEY}
-    S3_SECRET_KEY: ${DEV_S3_SECRET_KEY}
+    NODE_PEM: ${NODE_1_PEM}
+    NODE_KEY: ${NODE_1_KEY}
+    NODE_CSR: ${NODE_1_CSR}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
     - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
-    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
-    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
     - echo "${NODE_PEM}" > "deploy/certs/node.pem"
     - echo "${NODE_KEY}" > "deploy/certs/node.key"
     - echo "${NODE_CSR}" > "deploy/certs/node.csr"
+    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
+    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
+    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
     - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
       SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
       S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: dev
+    name: dev/es6-1
+  only:
+    - master
+  when: manual
+
+deploy-es6-2-stable-branch-develop:
+  stage: deploy
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
+  variables:
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    SERVICES_TO_CHECK: ${STACK}_es6-2
+    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.dev.yml
+    NODE_PEM: ${NODE_2_PEM}
+    NODE_KEY: ${NODE_2_KEY}
+    NODE_CSR: ${NODE_2_CSR}
+  script:
+    - mkdir -p deploy/certs deploy/config
+    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
+    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
+    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
+    - echo "${NODE_KEY}" > "deploy/certs/node.key"
+    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
+  environment:
+    name: dev/es6-2
+  only:
+    - master
+  when: manual
+
+deploy-es6-3-stable-branch-develop:
+  stage: deploy
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
+  variables:
+    SSH_REMOTE: ${DEV_SSH_REMOTE}
+    SERVICES_TO_CHECK: ${STACK}_es6-3
+    COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.dev.yml
+    NODE_PEM: ${NODE_3_PEM}
+    NODE_KEY: ${NODE_3_KEY}
+    NODE_CSR: ${NODE_3_CSR}
+  script:
+    - mkdir -p deploy/certs deploy/config
+    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
+    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
+    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
+    - echo "${NODE_KEY}" > "deploy/certs/node.key"
+    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
+    - >
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
+  environment:
+    name: dev/es6-3
   only:
     - master
   when: manual
 
 deploy-es6-1-supporting-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-1
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-1
     COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.prod.yml
-    SG_ADMIN_DN: ${PRO_SG_ADMIN_DN}
-    SG_NODE_1_DN: ${PRO_SG_NODE_1_DN}
-    SG_NODE_2_DN: ${PRO_SG_NODE_2_DN}
-    SG_NODE_3_DN: ${PRO_SG_NODE_3_DN}
-    CA_PEM: ${PRO_CA_PEM}
-    CA_KEY: ${PRO_CA_KEY}
-    ADMIN_PEM: ${PRO_ADMIN_PEM}
-    ADMIN_KEY: ${PRO_ADMIN_KEY}
-    ADMIN_CSR: ${PRO_ADMIN_CSR}
-    NODE_PEM: ${PRO_NODE_1_PEM}
-    NODE_KEY: ${PRO_NODE_1_KEY}
-    NODE_CSR: ${PRO_NODE_1_CSR}
-    SG_USERS: ${PRO_SG_USERS}
-    S3_ACCESS_KEY: ${PRO_S3_ACCESS_KEY}
-    S3_SECRET_KEY: ${PRO_S3_SECRET_KEY}
+    NODE_PEM: ${NODE_1_PEM}
+    NODE_KEY: ${NODE_1_KEY}
+    NODE_CSR: ${NODE_1_CSR}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
     - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
-    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
-    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
     - echo "${NODE_PEM}" > "deploy/certs/node.pem"
     - echo "${NODE_KEY}" > "deploy/certs/node.key"
     - echo "${NODE_CSR}" > "deploy/certs/node.csr"
+    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
+    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
+    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
     - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY} AWS_REGION=${AWS_REGION}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: pro
+    name: pro/es6-1
   only:
     - branches
   except:
@@ -284,24 +276,14 @@ deploy-es6-1-supporting-branch-production:
 
 deploy-es6-2-supporting-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-2
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-2
     COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.prod.yml
-    SG_NODE_1_DN: ${PRO_SG_NODE_1_DN}
-    SG_NODE_2_DN: ${PRO_SG_NODE_2_DN}
-    SG_NODE_3_DN: ${PRO_SG_NODE_3_DN}
-    CA_PEM: ${PRO_CA_PEM}
-    CA_KEY: ${PRO_CA_KEY}
-    NODE_PEM: ${PRO_NODE_2_PEM}
-    NODE_KEY: ${PRO_NODE_2_KEY}
-    NODE_CSR: ${PRO_NODE_2_CSR}
-    S3_ACCESS_KEY: ${PRO_S3_ACCESS_KEY}
-    S3_SECRET_KEY: ${PRO_S3_SECRET_KEY}
+    NODE_PEM: ${NODE_2_PEM}
+    NODE_KEY: ${NODE_2_KEY}
+    NODE_CSR: ${NODE_2_CSR}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
@@ -310,11 +292,11 @@ deploy-es6-2-supporting-branch-production:
     - echo "${NODE_KEY}" > "deploy/certs/node.key"
     - echo "${NODE_CSR}" > "deploy/certs/node.csr"
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY} AWS_REGION=${AWS_REGION}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: pro
+    name: pro/es6-2
   only:
     - branches
   except:
@@ -323,24 +305,14 @@ deploy-es6-2-supporting-branch-production:
 
 deploy-es6-3-supporting-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-3
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-3
     COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
-    SG_NODE_1_DN: ${PRO_SG_NODE_1_DN}
-    SG_NODE_2_DN: ${PRO_SG_NODE_2_DN}
-    SG_NODE_3_DN: ${PRO_SG_NODE_3_DN}
-    CA_PEM: ${PRO_CA_PEM}
-    CA_KEY: ${PRO_CA_KEY}
-    NODE_PEM: ${PRO_NODE_3_PEM}
-    NODE_KEY: ${PRO_NODE_3_KEY}
-    NODE_CSR: ${PRO_NODE_3_CSR}
-    S3_ACCESS_KEY: ${PRO_S3_ACCESS_KEY}
-    S3_SECRET_KEY: ${PRO_S3_SECRET_KEY}
+    NODE_PEM: ${NODE_3_PEM}
+    NODE_KEY: ${NODE_3_KEY}
+    NODE_CSR: ${NODE_3_CSR}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
@@ -349,11 +321,11 @@ deploy-es6-3-supporting-branch-production:
     - echo "${NODE_KEY}" > "deploy/certs/node.key"
     - echo "${NODE_CSR}" > "deploy/certs/node.csr"
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY} AWS_REGION=${AWS_REGION}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: pro
+    name: pro/es6-3
   only:
     - branches
   except:
@@ -362,66 +334,85 @@ deploy-es6-3-supporting-branch-production:
 
 deploy-es6-1-stable-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-1
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-1
     COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.prod.yml
-    ES_CLOUD_AWS_S3_ACCESS_KEY: ${PRO_AWS_ACCESS_KEY_ID}
-    ES_CLOUD_AWS_S3_SECRET_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
+    NODE_PEM: ${NODE_1_PEM}
+    NODE_KEY: ${NODE_1_KEY}
+    NODE_CSR: ${NODE_1_CSR}
   script:
+    - mkdir -p deploy/certs deploy/config
+    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
+    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
+    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
+    - echo "${NODE_KEY}" > "deploy/certs/node.key"
+    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
+    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
+    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
+    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
+    - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
-      ES_CLOUD_AWS_S3_ACCESS_KEY=${ES_CLOUD_AWS_S3_ACCESS_KEY} ES_CLOUD_AWS_S3_SECRET_KEY=${ES_CLOUD_AWS_S3_SECRET_KEY}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: pro
+    name: pro/es6-1
   only:
     - master
   when: manual
 
 deploy-es6-2-stable-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-2
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-2
     COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.prod.yml
-    ES_CLOUD_AWS_S3_ACCESS_KEY: ${PRO_AWS_ACCESS_KEY_ID}
-    ES_CLOUD_AWS_S3_SECRET_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
+    NODE_PEM: ${NODE_2_PEM}
+    NODE_KEY: ${NODE_2_KEY}
+    NODE_CSR: ${NODE_2_CSR}
   script:
+    - mkdir -p deploy/certs deploy/config
+    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
+    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
+    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
+    - echo "${NODE_KEY}" > "deploy/certs/node.key"
+    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
-      ES_CLOUD_AWS_S3_ACCESS_KEY=${ES_CLOUD_AWS_S3_ACCESS_KEY} ES_CLOUD_AWS_S3_SECRET_KEY=${ES_CLOUD_AWS_S3_SECRET_KEY}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: pro
+    name: pro/es6-2
   only:
     - master
   when: manual
 
 deploy-es6-3-stable-branch-production:
   stage: deploy
-  image: registry.gitlab.com/redmic-project/docker/docker-deploy:${DOCKER_DEPLOY_IMAGE_TAG}
+  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
   variables:
     SSH_REMOTE: ${PRO_SSH_REMOTE}
-    STACK: elastic
-    SERVICES_TO_CHECK: elastic_es6-3
-    IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-    IMAGE_TAG: ${CI_COMMIT_SHA}
+    SERVICES_TO_CHECK: ${STACK}_es6-3
     COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
-    ES_CLOUD_AWS_S3_ACCESS_KEY: ${PRO_AWS_ACCESS_KEY_ID}
-    ES_CLOUD_AWS_S3_SECRET_KEY: ${PRO_AWS_SECRET_ACCESS_KEY}
+    NODE_PEM: ${NODE_3_PEM}
+    NODE_KEY: ${NODE_3_KEY}
+    NODE_CSR: ${NODE_3_CSR}
   script:
+    - mkdir -p deploy/certs deploy/config
+    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
+    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
+    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
+    - echo "${NODE_KEY}" > "deploy/certs/node.key"
+    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
     - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} AWS_REGION=${AWS_REGION}
-      ES_CLOUD_AWS_S3_ACCESS_KEY=${ES_CLOUD_AWS_S3_ACCESS_KEY} ES_CLOUD_AWS_S3_SECRET_KEY=${ES_CLOUD_AWS_S3_SECRET_KEY}
+      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
+      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
   environment:
-    name: pro
+    name: pro/es6-3
   only:
     - master
   when: manual
