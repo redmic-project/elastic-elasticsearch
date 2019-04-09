@@ -102,17 +102,18 @@ services:
         gid: '1000'
     logging:
       driver: json-file
+    healthcheck:
+      test: "[ $(curl --silent localhost:${PORT}/_cat/health?h=status) = 'green' ]"
+      interval: 30s
+      timeout: 1m
+      retries: 20
+      start_period: 2m
     deploy:
       mode: replicated
       replicas: 1
       restart_policy:
-        delay: 1m
+        delay: 30s
         window: 3m
-    healthcheck:
-      test: curl --silent localhost:${PORT}/_searchguard/health
-      timeout: 10s
-      retries: 3
-      start_period: 2m
 
 networks:
   elastic-net:

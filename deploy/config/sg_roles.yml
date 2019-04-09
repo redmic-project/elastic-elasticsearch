@@ -45,6 +45,7 @@
 sg_anonymous_role:
   cluster:
     - CLUSTER_COMPOSITE_OPS_RO
+    - cluster:monitor/health
   indices:
     'tracking-vessel-*':
       '*':
