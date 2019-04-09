@@ -3,16 +3,16 @@ version: '3.5'
 services:
   es6-2:
     environment:
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
       - cluster.name=${ES_CLUSTER_NAME:-es_dev}
       - discovery.zen.minimum_master_nodes=${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-1}
     deploy:
       resources:
         limits:
           cpus: '1'
-          memory: 1G
+          memory: 2G
         reservations:
-          memory: 820M
+          memory: 1639M
 
 volumes:
   es-data-vol:
