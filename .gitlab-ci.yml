@@ -1,80 +1,22 @@
+include:
+  - project: 'redmic-project/gitlab-ci-templates'
+    ref: master
+    file: '/packaging.yml'
+  - project: 'redmic-project/gitlab-ci-templates'
+    ref: master
+    file: '/_deployment.yml'
+
 stages:
   - package
   - test-package
   - deploy
 
-image: docker:stable
-
-services:
-  - docker:dind
-
 variables:
-  DOCKER_DRIVER: overlay2
   STACK: elastic
-  IMAGE_NAME: ${CI_REGISTRY_IMAGE}
-  IMAGE_TAG: ${CI_COMMIT_SHA}
 
-docker-build-commit-non-master-branches:
-  stage: package
-  only:
-    - branches
-  except:
-    - master
-  script:
-    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}-latest .
-    - docker push ${CI_REGISTRY_IMAGE}
-
-docker-build-commit-master-branch:
-  stage: package
-  only:
-    - master
-  script:
-    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} -t ${CI_REGISTRY_IMAGE}:latest .
-    - docker push ${CI_REGISTRY_IMAGE}
-
-docker-tag-already-built-image:
-  stage: package
-  only:
-    - tags
-  script:
-    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - docker pull ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
-    - docker tag ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}
-    - docker push ${CI_REGISTRY_IMAGE}
-
-container-scanning:
-  stage: test-package
-  allow_failure: true
-  only:
-    - branches
-  script:
-    - docker run -d --name db arminc/clair-db:latest
-    - docker run -p 6060:6060 --link db:postgres -d --name clair arminc/clair-local-scan:v2.0.1
-    - apk add -U wget ca-certificates
-    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-    - docker pull ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
-    - wget https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64
-    - mv clair-scanner_linux_amd64 clair-scanner
-    - chmod +x clair-scanner
-    - touch clair-whitelist.yml
-    - >
-      ./clair-scanner -c http://docker:6060 --ip $(hostname -i) -r gl-sast-container-report.json -l clair.log
-      -w clair-whitelist.yml ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA} || true
-  artifacts:
-    paths: [gl-sast-container-report.json]
-
-deploy-es6-1-supporting-branch-develop:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
+.deploy:
   variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-1
-    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.dev.yml
-    NODE_PEM: ${NODE_1_PEM}
-    NODE_KEY: ${NODE_1_KEY}
-    NODE_CSR: ${NODE_1_CSR}
+    SERVICES_TO_CHECK: ${STACK}_${SERVICE_NAME}
   script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
@@ -90,329 +32,150 @@ deploy-es6-1-supporting-branch-develop:
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
       SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
       S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: dev/es6-1
-  only:
-    - branches
-  except:
-    - master
-  when: manual
 
-deploy-es6-2-supporting-branch-develop:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
+.deploy-development:
   variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-2
-    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.dev.yml
-    NODE_PEM: ${NODE_2_PEM}
-    NODE_KEY: ${NODE_2_KEY}
-    NODE_CSR: ${NODE_2_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
+    COMPOSE_FILE: docker-compose.${SERVICE_NAME}.tmpl.yml:docker-compose.${SERVICE_NAME}.dev.yml
   environment:
-    name: dev/es6-2
-  only:
-    - branches
-  except:
-    - master
-  when: manual
+    name: dev/${SERVICE_NAME}
 
-deploy-es6-3-supporting-branch-develop:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
+.deploy-production:
   variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-3
-    COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.dev.yml
-    NODE_PEM: ${NODE_3_PEM}
-    NODE_KEY: ${NODE_3_KEY}
-    NODE_CSR: ${NODE_3_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
+    COMPOSE_FILE: docker-compose.${SERVICE_NAME}.tmpl.yml:docker-compose.${SERVICE_NAME}.prod.yml
   environment:
-    name: dev/es6-3
-  only:
-    - branches
-  except:
-    - master
-  when: manual
+    name: pro/${SERVICE_NAME}
 
-deploy-es6-1-stable-branch-develop:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-1
-    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.dev.yml
+.deploy-es6-1:
+  variables: &deploy-es6-1-variables
+    SERVICE_NAME: es6-1
     NODE_PEM: ${NODE_1_PEM}
     NODE_KEY: ${NODE_1_KEY}
     NODE_CSR: ${NODE_1_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
-    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
-    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
-    - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: dev/es6-1
-  only:
-    - master
-  when: manual
 
-deploy-es6-2-stable-branch-develop:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-2
-    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.dev.yml
+.deploy-es6-2:
+  variables: &deploy-es6-2-variables
+    SERVICE_NAME: es6-2
     NODE_PEM: ${NODE_2_PEM}
     NODE_KEY: ${NODE_2_KEY}
     NODE_CSR: ${NODE_2_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: dev/es6-2
-  only:
-    - master
-  when: manual
 
-deploy-es6-3-stable-branch-develop:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${DEV_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-3
-    COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.dev.yml
+.deploy-es6-3:
+  variables: &deploy-es6-3-variables
+    SERVICE_NAME: es6-3
     NODE_PEM: ${NODE_3_PEM}
     NODE_KEY: ${NODE_3_KEY}
     NODE_CSR: ${NODE_3_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: dev/es6-3
-  only:
-    - master
-  when: manual
 
-deploy-es6-1-supporting-branch-production:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-1
-    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.prod.yml
-    NODE_PEM: ${NODE_1_PEM}
-    NODE_KEY: ${NODE_1_KEY}
-    NODE_CSR: ${NODE_1_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
-    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
-    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
-    - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: pro/es6-1
+.deploy-es6-1-development:
+  extends: .deploy-development
+  variables: *deploy-es6-1-variables
+
+.deploy-es6-2-development:
+  extends: .deploy-development
+  variables: *deploy-es6-2-variables
+
+.deploy-es6-3-development:
+  extends: .deploy-development
+  variables: *deploy-es6-3-variables
+
+.deploy-es6-1-production:
+  extends: .deploy-production
+  variables: *deploy-es6-1-variables
+
+.deploy-es6-2-production:
+  extends: .deploy-production
+  variables: *deploy-es6-2-variables
+
+.deploy-es6-3-production:
+  extends: .deploy-production
+  variables: *deploy-es6-3-variables
+
+deploy-es6-1-support-branch-development:
+  extends: .deploy-es6-1-development
   only:
     - branches
   except:
     - master
-  when: manual
+    - schedules
 
-deploy-es6-2-supporting-branch-production:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-2
-    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.prod.yml
-    NODE_PEM: ${NODE_2_PEM}
-    NODE_KEY: ${NODE_2_KEY}
-    NODE_CSR: ${NODE_2_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: pro/es6-2
+deploy-es6-2-support-branch-development:
+  extends: .deploy-es6-2-development
   only:
     - branches
   except:
     - master
-  when: manual
+    - schedules
 
-deploy-es6-3-supporting-branch-production:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-3
-    COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
-    NODE_PEM: ${NODE_3_PEM}
-    NODE_KEY: ${NODE_3_KEY}
-    NODE_CSR: ${NODE_3_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: pro/es6-3
+deploy-es6-3-support-branch-development:
+  extends: .deploy-es6-3-development
   only:
     - branches
   except:
     - master
-  when: manual
+    - schedules
+
+deploy-es6-1-stable-branch-development:
+  extends: .deploy-es6-1-development
+  only:
+    - master
+  except:
+    - schedules
+
+deploy-es6-2-stable-branch-development:
+  extends: .deploy-es6-2-development
+  only:
+    - master
+  except:
+    - schedules
+
+deploy-es6-3-stable-branch-development:
+  extends: .deploy-es6-3-development
+  only:
+    - master
+  except:
+    - schedules
+
+deploy-es6-1-support-branch-production:
+  extends: .deploy-es6-1-production
+  only:
+    - branches
+  except:
+    - master
+    - schedules
+
+deploy-es6-2-support-branch-production:
+  extends: .deploy-es6-2-production
+  only:
+    - branches
+  except:
+    - master
+    - schedules
+
+deploy-es6-3-support-branch-production:
+  extends: .deploy-es6-3-production
+  only:
+    - branches
+  except:
+    - master
+    - schedules
 
 deploy-es6-1-stable-branch-production:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-1
-    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.prod.yml
-    NODE_PEM: ${NODE_1_PEM}
-    NODE_KEY: ${NODE_1_KEY}
-    NODE_CSR: ${NODE_1_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - echo "${ADMIN_PEM}" > "deploy/certs/admin.pem"
-    - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
-    - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
-    - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: pro/es6-1
+  extends: .deploy-es6-1-production
   only:
     - master
-  when: manual
+  except:
+    - schedules
 
 deploy-es6-2-stable-branch-production:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-2
-    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.prod.yml
-    NODE_PEM: ${NODE_2_PEM}
-    NODE_KEY: ${NODE_2_KEY}
-    NODE_CSR: ${NODE_2_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: pro/es6-2
+  extends: .deploy-es6-2-production
   only:
     - master
-  when: manual
+  except:
+    - schedules
 
 deploy-es6-3-stable-branch-production:
-  stage: deploy
-  image: ${DOCKER_DEPLOY_IMAGE_NAME}:${DOCKER_DEPLOY_IMAGE_TAG}
-  variables:
-    SSH_REMOTE: ${PRO_SSH_REMOTE}
-    SERVICES_TO_CHECK: ${STACK}_es6-3
-    COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
-    NODE_PEM: ${NODE_3_PEM}
-    NODE_KEY: ${NODE_3_KEY}
-    NODE_CSR: ${NODE_3_CSR}
-  script:
-    - mkdir -p deploy/certs deploy/config
-    - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
-    - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
-    - echo "${NODE_PEM}" > "deploy/certs/node.pem"
-    - echo "${NODE_KEY}" > "deploy/certs/node.key"
-    - echo "${NODE_CSR}" > "deploy/certs/node.csr"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
-  environment:
-    name: pro/es6-3
+  extends: .deploy-es6-3-production
   only:
     - master
-  when: manual
+  except:
+    - schedules
