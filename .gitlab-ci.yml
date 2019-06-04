@@ -30,7 +30,7 @@ variables:
     - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
     - >
       deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN}
+      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
       S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
 
 .deploy-development:
