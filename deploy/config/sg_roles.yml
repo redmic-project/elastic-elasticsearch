@@ -47,6 +47,15 @@ sg_anonymous_role:
     - CLUSTER_COMPOSITE_OPS_RO
     - cluster:monitor/health
   indices:
+    '?kibana':
+      '*':
+        - READ
+    '?kibana-6':
+      '*':
+        - READ
+    '?kibana_*':
+      '*':
+        - READ
     'tracking-vessel-*':
       '*':
         - READ

@@ -18,7 +18,6 @@ sg_kibana_server:
 sg_kibana_user:
   backendroles:
     - kibanauser
-    - sg_anonymous_backendrole
 
 sg_readall:
   readonly: true
