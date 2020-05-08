@@ -3,20 +3,24 @@ version: '3.5'
 services:
   es6-2:
     environment:
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
-      - cluster.name=${ES_CLUSTER_NAME:-es_dev}
-      - discovery.zen.minimum_master_nodes=${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-1}
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms1g -Xmx1g}
+      cluster.name: ${ES_CLUSTER_NAME:-es_dev}
+      discovery.zen.minimum_master_nodes: ${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-1}
     deploy:
+      placement:
+        constraints:
+          - node.hostname == ${PLACEMENT_CONSTRAINTS_NODE_HOSTNAME_2:-hostname}
       resources:
         limits:
-          cpus: '1'
-          memory: 2G
+          cpus: '${RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-2G}
         reservations:
-          memory: 1639M
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-1639M}
 
 volumes:
   es-data-vol:
-    name: "${ES_DATA_VOL_NAME:-es6-2-data-vol}"
+    name: ${ES_DATA_VOL_NAME:-es6-2-data-vol}
 
   es-conf-vol:
-    name: "${ES_CONF_VOL_NAME:-es6-2-conf-vol}"
+    name: ${ES_CONF_VOL_NAME:-es6-2-conf-vol}

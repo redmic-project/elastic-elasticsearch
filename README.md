@@ -8,7 +8,7 @@ Search Guard provides a tool, [Search Guard TLS Tool](https://search.maven.org/s
 
 First, create a yaml file with certificates definition, at `config/example.yml` inside extracted content:
 
-```
+```yml
 ca:
   root:
     dn: CN=root-ca.example.net,O=EXAMPLE
@@ -49,10 +49,10 @@ clients:
 
 Then, use it with the script `tools/sgtlstool.sh` and generate the certificates:
 
-```
-$ ./sgtlstool.sh -c ../config/example.yml -v -ca
-$ ./sgtlstool.sh -c ../config/example.yml -v -csr
-$ ./sgtlstool.sh -c ../config/example.yml -v -crt -f -o
+```sh
+./sgtlstool.sh -c ../config/example.yml -v -ca
+./sgtlstool.sh -c ../config/example.yml -v -csr
+./sgtlstool.sh -c ../config/example.yml -v -crt -f -o
 ```
 
 Your certificates will be generated inside `tools/out` directory.
@@ -63,7 +63,7 @@ Before using Search Guard, you must update the content of `/usr/share/elasticsea
 
 You can generate the password hashes with a [online tool](https://8gwifi.org/bccrypt.jsp), for example.
 
-```
+```yml
 admin_elastic:
   readonly: true
   hash: $2a...
@@ -81,10 +81,10 @@ When using Search Guard at first time, is required to run a script as certified 
 
 While running, get into container and run the following commands:
 
-```
-$ cd /usr/share/elasticsearch/plugins/search-guard-6/tools
+```sh
+cd /usr/share/elasticsearch/plugins/search-guard-6/tools
 
-$ bash sgadmin.sh -cd /usr/share/elasticsearch/plugins/search-guard-6/sgconfig -icl \
+bash sgadmin.sh -cd /usr/share/elasticsearch/plugins/search-guard-6/sgconfig -icl \
 	-key /usr/share/elasticsearch/config/certs/admin.key \
 	-cert /usr/share/elasticsearch/config/certs/admin.pem \
 	-cacert /usr/share/elasticsearch/config/certs/root-ca.pem \
@@ -95,7 +95,7 @@ $ bash sgadmin.sh -cd /usr/share/elasticsearch/plugins/search-guard-6/sgconfig -
 
 In order to create backups, you must configure a snapshot repository first. Run these command once inside running container:
 
-```
+```sh
 $ echo "${S3_ACCESS_KEY}" | elasticsearch-keystore add --stdin s3.client.default.access_key
 $ echo "${S3_SECRET_KEY}" | elasticsearch-keystore add --stdin s3.client.default.secret_key
 

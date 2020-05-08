@@ -3,10 +3,10 @@ version: '3.5'
 services:
   es6-1:
     environment:
-      - ES_JAVA_OPTS=-Xms1536m -Xmx1536m
-      - cluster.name=${ES_CLUSTER_NAME:-es_pro}
-      - discovery.zen.minimum_master_nodes=${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-2}
-      - TAKE_FILE_OWNERSHIP=1000:0
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms1536m -Xmx1536m}
+      cluster.name: ${ES_CLUSTER_NAME:-es_pro}
+      discovery.zen.minimum_master_nodes: ${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-2}
+      TAKE_FILE_OWNERSHIP: '1000:0'
     deploy:
       placement:
         constraints:
@@ -14,24 +14,24 @@ services:
           - engine.labels.availability_zone == ${AWS_REGION}a
       resources:
         limits:
-          cpus: '2'
-          memory: 3G
+          cpus: '${RESOURCES_LIMITS_CPUS:-2}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-3G}
         reservations:
-          cpus: '0.2'
-          memory: 2G
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.2}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-2G}
 
 volumes:
   es-data-vol:
-    name: "${ES_DATA_VOL_NAME:-es6-1-data-vol}"
-    driver: "cloudstor:aws"
+    name: ${ES_DATA_VOL_NAME:-es6-1-data-vol}
+    driver: 'cloudstor:aws'
     driver_opts:
       backing: relocatable
       size: 25
       ebstype: gp2
 
   es-conf-vol:
-    name: "${ES_CONF_VOL_NAME:-es6-1-conf-vol}"
-    driver: "cloudstor:aws"
+    name: ${ES_CONF_VOL_NAME:-es6-1-conf-vol}
+    driver: 'cloudstor:aws'
     driver_opts:
       backing: shared
       perfmode: maxio

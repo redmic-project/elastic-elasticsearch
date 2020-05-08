@@ -12,12 +12,13 @@ stages:
   - deploy
 
 variables:
-  STACK: elastic
+  PROJECT_PARENT_NAME: elastic
 
 .deploy:
   variables:
-    SERVICES_TO_CHECK: ${STACK}_${SERVICE_NAME}
-  script:
+    STACK: ${PROJECT_PARENT_NAME}
+    DD_AWS_REGION: ${AWS_REGION}
+  before_script:
     - mkdir -p deploy/certs deploy/config
     - echo "${CA_PEM}" > "deploy/certs/root-ca.pem"
     - echo "${CA_KEY}" > "deploy/certs/root-ca.key"
@@ -28,26 +29,19 @@ variables:
     - echo "${ADMIN_KEY}" > "deploy/certs/admin.key"
     - echo "${ADMIN_CSR}" > "deploy/certs/admin.csr"
     - echo "${SG_USERS}" > "deploy/config/sg_internal_users.yml"
-    - >
-      deploy.sh IMAGE_NAME=${IMAGE_NAME} IMAGE_TAG=${IMAGE_TAG} COMPOSE_FILE=${COMPOSE_FILE} SG_ADMIN_DN=${SG_ADMIN_DN}
-      SG_NODE_1_DN=${SG_NODE_1_DN} SG_NODE_2_DN=${SG_NODE_2_DN} SG_NODE_3_DN=${SG_NODE_3_DN} AWS_REGION=${AWS_REGION}
-      S3_ACCESS_KEY=${S3_ACCESS_KEY} S3_SECRET_KEY=${S3_SECRET_KEY}
 
 .deploy-development:
-  variables:
-    COMPOSE_FILE: docker-compose.${SERVICE_NAME}.tmpl.yml:docker-compose.${SERVICE_NAME}.dev.yml
   environment:
     name: dev/${SERVICE_NAME}
 
 .deploy-production:
-  variables:
-    COMPOSE_FILE: docker-compose.${SERVICE_NAME}.tmpl.yml:docker-compose.${SERVICE_NAME}.prod.yml
   environment:
     name: pro/${SERVICE_NAME}
 
 .deploy-es6-1:
   variables: &deploy-es6-1-variables
     SERVICE_NAME: es6-1
+    SERVICES_TO_CHECK: ${PROJECT_PARENT_NAME}_es6-1
     NODE_PEM: ${NODE_1_PEM}
     NODE_KEY: ${NODE_1_KEY}
     NODE_CSR: ${NODE_1_CSR}
@@ -55,6 +49,7 @@ variables:
 .deploy-es6-2:
   variables: &deploy-es6-2-variables
     SERVICE_NAME: es6-2
+    SERVICES_TO_CHECK: ${PROJECT_PARENT_NAME}_es6-2
     NODE_PEM: ${NODE_2_PEM}
     NODE_KEY: ${NODE_2_KEY}
     NODE_CSR: ${NODE_2_CSR}
@@ -62,120 +57,132 @@ variables:
 .deploy-es6-3:
   variables: &deploy-es6-3-variables
     SERVICE_NAME: es6-3
+    SERVICES_TO_CHECK: ${PROJECT_PARENT_NAME}_es6-3
     NODE_PEM: ${NODE_3_PEM}
     NODE_KEY: ${NODE_3_KEY}
     NODE_CSR: ${NODE_3_CSR}
 
 .deploy-es6-1-development:
   extends: .deploy-development
-  variables: *deploy-es6-1-variables
+  variables:
+    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.dev.yml
+    <<: *deploy-es6-1-variables
 
 .deploy-es6-2-development:
   extends: .deploy-development
-  variables: *deploy-es6-2-variables
+  variables:
+    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.dev.yml
+    <<: *deploy-es6-2-variables
 
 .deploy-es6-3-development:
   extends: .deploy-development
-  variables: *deploy-es6-3-variables
+  variables:
+    COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.dev.yml
+    <<: *deploy-es6-3-variables
 
 .deploy-es6-1-production:
   extends: .deploy-production
-  variables: *deploy-es6-1-variables
+  variables:
+    COMPOSE_FILE: docker-compose.es6-1.tmpl.yml:docker-compose.es6-1.prod.yml
+    <<: *deploy-es6-1-variables
 
 .deploy-es6-2-production:
   extends: .deploy-production
-  variables: *deploy-es6-2-variables
+  variables:
+    COMPOSE_FILE: docker-compose.es6-2.tmpl.yml:docker-compose.es6-2.prod.yml
+    <<: *deploy-es6-2-variables
 
 .deploy-es6-3-production:
   extends: .deploy-production
-  variables: *deploy-es6-3-variables
+  variables:
+    COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
+    <<: *deploy-es6-3-variables
+
+.deploy-support-branch: &deploy-support-branch
+  only:
+    - branches
+  except:
+    - master
+    - schedules
 
 deploy-es6-1-support-branch-development:
   extends: .deploy-es6-1-development
-  only:
-    - branches
-  except:
-    - master
-    - schedules
+  <<: *deploy-support-branch
 
 deploy-es6-2-support-branch-development:
   extends: .deploy-es6-2-development
-  only:
-    - branches
-  except:
-    - master
-    - schedules
+  <<: *deploy-support-branch
 
 deploy-es6-3-support-branch-development:
   extends: .deploy-es6-3-development
+  <<: *deploy-support-branch
+
+deploy-es6-1-support-branch-production:
+  extends: .deploy-es6-1-production
+  <<: *deploy-support-branch
+
+deploy-es6-2-support-branch-production:
+  extends: .deploy-es6-2-production
+  <<: *deploy-support-branch
+
+deploy-es6-3-support-branch-production:
+  extends: .deploy-es6-3-production
+  <<: *deploy-support-branch
+
+.deploy-stable-branch: &deploy-stable-branch
   only:
-    - branches
-  except:
     - master
+  except:
     - schedules
 
 deploy-es6-1-stable-branch-development:
   extends: .deploy-es6-1-development
-  only:
-    - master
-  except:
-    - schedules
+  <<: *deploy-stable-branch
 
 deploy-es6-2-stable-branch-development:
   extends: .deploy-es6-2-development
-  only:
-    - master
-  except:
-    - schedules
+  <<: *deploy-stable-branch
 
 deploy-es6-3-stable-branch-development:
   extends: .deploy-es6-3-development
-  only:
-    - master
-  except:
-    - schedules
-
-deploy-es6-1-support-branch-production:
-  extends: .deploy-es6-1-production
-  only:
-    - branches
-  except:
-    - master
-    - schedules
-
-deploy-es6-2-support-branch-production:
-  extends: .deploy-es6-2-production
-  only:
-    - branches
-  except:
-    - master
-    - schedules
-
-deploy-es6-3-support-branch-production:
-  extends: .deploy-es6-3-production
-  only:
-    - branches
-  except:
-    - master
-    - schedules
+  <<: *deploy-stable-branch
 
 deploy-es6-1-stable-branch-production:
   extends: .deploy-es6-1-production
-  only:
-    - master
-  except:
-    - schedules
+  <<: *deploy-stable-branch
 
 deploy-es6-2-stable-branch-production:
   extends: .deploy-es6-2-production
-  only:
-    - master
-  except:
-    - schedules
+  <<: *deploy-stable-branch
 
 deploy-es6-3-stable-branch-production:
   extends: .deploy-es6-3-production
+  <<: *deploy-stable-branch
+
+.deploy-tag: &deploy-tag
   only:
-    - master
-  except:
-    - schedules
+    - tags
+
+deploy-es6-1-tag-development:
+  extends: .deploy-es6-1-development
+  <<: *deploy-tag
+
+deploy-es6-2-tag-development:
+  extends: .deploy-es6-2-development
+  <<: *deploy-tag
+
+deploy-es6-3-tag-development:
+  extends: .deploy-es6-3-development
+  <<: *deploy-tag
+
+deploy-es6-1-tag-production:
+  extends: .deploy-es6-1-production
+  <<: *deploy-tag
+
+deploy-es6-2-tag-production:
+  extends: .deploy-es6-2-production
+  <<: *deploy-tag
+
+deploy-es6-3-tag-production:
+  extends: .deploy-es6-3-production
+  <<: *deploy-tag
