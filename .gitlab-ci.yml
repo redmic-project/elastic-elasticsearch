@@ -98,6 +98,11 @@ variables:
     COMPOSE_FILE: docker-compose.es6-3.tmpl.yml:docker-compose.es6-3.prod.yml
     <<: *deploy-es6-3-variables
 
+.deploy-branch-base:
+  variables: &deploy-branch-base-variables
+    DD_IMAGE_NAME: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}
+    DD_IMAGE_TAG: ${CI_COMMIT_SHA}
+
 .deploy-support-branch: &deploy-support-branch
   only:
     - branches
@@ -107,26 +112,38 @@ variables:
 
 deploy-es6-1-support-branch-development:
   extends: .deploy-es6-1-development
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-support-branch
 
 deploy-es6-2-support-branch-development:
   extends: .deploy-es6-2-development
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-support-branch
 
 deploy-es6-3-support-branch-development:
   extends: .deploy-es6-3-development
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-support-branch
 
 deploy-es6-1-support-branch-production:
   extends: .deploy-es6-1-production
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-support-branch
 
 deploy-es6-2-support-branch-production:
   extends: .deploy-es6-2-production
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-support-branch
 
 deploy-es6-3-support-branch-production:
   extends: .deploy-es6-3-production
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-support-branch
 
 .deploy-stable-branch: &deploy-stable-branch
@@ -137,27 +154,44 @@ deploy-es6-3-support-branch-production:
 
 deploy-es6-1-stable-branch-development:
   extends: .deploy-es6-1-development
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-stable-branch
 
 deploy-es6-2-stable-branch-development:
   extends: .deploy-es6-2-development
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-stable-branch
 
 deploy-es6-3-stable-branch-development:
   extends: .deploy-es6-3-development
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-stable-branch
 
 deploy-es6-1-stable-branch-production:
   extends: .deploy-es6-1-production
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-stable-branch
 
 deploy-es6-2-stable-branch-production:
   extends: .deploy-es6-2-production
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-stable-branch
 
 deploy-es6-3-stable-branch-production:
   extends: .deploy-es6-3-production
+  variables:
+    <<: *deploy-branch-base-variables
   <<: *deploy-stable-branch
+
+.deploy-tag-base:
+  variables: &deploy-tag-base-variables
+    DD_IMAGE_NAME: ${CI_REGISTRY_IMAGE}
+    DD_IMAGE_TAG: ${CI_COMMIT_TAG}
 
 .deploy-tag: &deploy-tag
   only:
@@ -165,24 +199,36 @@ deploy-es6-3-stable-branch-production:
 
 deploy-es6-1-tag-development:
   extends: .deploy-es6-1-development
+  variables:
+    <<: *deploy-tag-base-variables
   <<: *deploy-tag
 
 deploy-es6-2-tag-development:
   extends: .deploy-es6-2-development
+  variables:
+    <<: *deploy-tag-base-variables
   <<: *deploy-tag
 
 deploy-es6-3-tag-development:
   extends: .deploy-es6-3-development
+  variables:
+    <<: *deploy-tag-base-variables
   <<: *deploy-tag
 
 deploy-es6-1-tag-production:
   extends: .deploy-es6-1-production
+  variables:
+    <<: *deploy-tag-base-variables
   <<: *deploy-tag
 
 deploy-es6-2-tag-production:
   extends: .deploy-es6-2-production
+  variables:
+    <<: *deploy-tag-base-variables
   <<: *deploy-tag
 
 deploy-es6-3-tag-production:
   extends: .deploy-es6-3-production
+  variables:
+    <<: *deploy-tag-base-variables
   <<: *deploy-tag
