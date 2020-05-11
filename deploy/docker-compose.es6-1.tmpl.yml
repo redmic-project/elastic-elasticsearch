@@ -48,63 +48,63 @@ services:
     secrets:
       - source: ca-pem
         target: ${ES_CERT_PATH}/root-ca.pem
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: ca-key
         target: ${ES_CERT_PATH}/root-ca.key
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: node-pem
         target: ${ES_CERT_PATH}/node.pem
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: node-key
         target: ${ES_CERT_PATH}/node.key
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: node-csr
         target: ${ES_CERT_PATH}/node.csr
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: admin-pem
         target: ${ES_CERT_PATH}/admin.pem
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: admin-key
         target: ${ES_CERT_PATH}/admin.key
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: admin-csr
         target: ${ES_CERT_PATH}/admin.csr
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
     configs:
       - source: sg-users
         target: ${SG_CONFIG_PATH}/sg_internal_users.yml
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: sg-config
         target: ${SG_CONFIG_PATH}/sg_config.yml
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: sg-roles
         target: ${SG_CONFIG_PATH}/sg_roles.yml
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: sg-roles-mapping
         target: ${SG_CONFIG_PATH}/sg_roles_mapping.yml
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
     logging:

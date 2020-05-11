@@ -41,27 +41,27 @@ services:
     secrets:
       - source: ca-pem
         target: ${ES_CERT_PATH}/root-ca.pem
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: ca-key
         target: ${ES_CERT_PATH}/root-ca.key
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: node-pem
         target: ${ES_CERT_PATH}/node.pem
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: node-key
         target: ${ES_CERT_PATH}/node.key
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
       - source: node-csr
         target: ${ES_CERT_PATH}/node.csr
-        mode: ${SG_FILE_MODE}
+        mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
     logging:
