@@ -3,6 +3,13 @@ version: '3.5'
 services:
   es6-1:
     image: ${IMAGE_NAME}:${IMAGE_TAG}
+    build:
+      context: ..
+      dockerfile: ${DOCKERFILE:-Dockerfile}
+      args:
+        PARENT_IMAGE_TAG:
+        ES_PATH:
+        SEARCH_GUARD_VERSION:
     environment:
       node.name: ${ES_NODE_NAME:-es6-1}
       node.master: ${ES_NODE_MASTER}
