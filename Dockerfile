@@ -1,4 +1,4 @@
-ARG PARENT_IMAGE_TAG="6.5.4"
+ARG PARENT_IMAGE_TAG="6.6.2"
 
 FROM docker.elastic.co/elasticsearch/elasticsearch:${PARENT_IMAGE_TAG}
 
@@ -16,7 +16,7 @@ ENV ES_PATH="${ES_PATH}" \
 	network.host="0.0.0.0" \
 	bootstrap.memory_lock="true"
 
-ARG SEARCH_GUARD_VERSION="6.5.4-25.5"
+ARG SEARCH_GUARD_VERSION="6.6.2-25.5"
 
 RUN ulimit -n 65536 && \
 	${ES_PATH}/bin/elasticsearch-plugin install --batch repository-s3 && \
