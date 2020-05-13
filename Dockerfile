@@ -1,4 +1,4 @@
-ARG PARENT_IMAGE_TAG="6.8.9"
+ARG PARENT_IMAGE_TAG="6.8.8"
 
 FROM docker.elastic.co/elasticsearch/elasticsearch:${PARENT_IMAGE_TAG}
 
