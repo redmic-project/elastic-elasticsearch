@@ -110,7 +110,7 @@ services:
     logging:
       driver: json-file
     healthcheck:
-      test: "[[ $$(curl --silent localhost:${PORT}/_cat/health?h=status) =~ ^(green|yellow) ]]"
+      test: "[[ $$(curl --silent localhost:${PORT}/_cat/health?h=status) =~ ^(green|yellow|red) ]]"
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-1m}
       retries: ${HEALTHCHECK_RETRIES:-20}
