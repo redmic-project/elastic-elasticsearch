@@ -5,7 +5,6 @@ services:
     environment:
       ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms1g -Xmx1g}
       cluster.name: ${ES_CLUSTER_NAME:-es_dev}
-      discovery.zen.minimum_master_nodes: ${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-1}
     deploy:
       placement:
         constraints:

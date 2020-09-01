@@ -11,6 +11,7 @@ services:
       path.data: ${ES_PATH_DATA}
       network.host: ${ES_NETWORK_HOST}
       bootstrap.memory_lock: ${ES_BOOTSTRAP_MEMORY_LOCK}
+      discovery.zen.minimum_master_nodes: ${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-2}
       xpack.security.enabled: ${ES_XPACK_SECURITY_ENABLED}
       searchguard.nodes_dn.0: ${SG_NODE_1_DN}
       searchguard.nodes_dn.1: ${SG_NODE_2_DN}
