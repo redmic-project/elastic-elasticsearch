@@ -109,11 +109,15 @@ variables:
     DD_IMAGE_TAG: ${CI_COMMIT_SHA}
 
 .deploy-support-branch: &deploy-support-branch
-  only:
-    - branches
-  except:
-    - master
-    - schedules
+  rules:
+    - if: $CI_MERGE_REQUEST_ID ||
+          $CI_COMMIT_TAG ||
+          $CI_PIPELINE_SOURCE == "schedule" ||
+          $CI_COMMIT_BRANCH == "master"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+      when: manual
+      allow_failure: true
 
 deploy-es6-1-support-branch-development:
   extends: .deploy-es6-1-development
@@ -152,10 +156,14 @@ deploy-es6-3-support-branch-production:
   <<: *deploy-support-branch
 
 .deploy-stable-branch: &deploy-stable-branch
-  only:
-    - master
-  except:
-    - schedules
+  rules:
+    - if: $CI_MERGE_REQUEST_ID ||
+          $CI_COMMIT_TAG ||
+          $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: manual
+      allow_failure: true
 
 deploy-es6-1-stable-branch-development:
   extends: .deploy-es6-1-development
@@ -199,8 +207,10 @@ deploy-es6-3-stable-branch-production:
     DD_IMAGE_TAG: ${CI_COMMIT_TAG}
 
 .deploy-tag: &deploy-tag
-  only:
-    - tags
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+      allow_failure: true
 
 deploy-es6-1-tag-development:
   extends: .deploy-es6-1-development
