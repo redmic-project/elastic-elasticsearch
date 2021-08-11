@@ -3,7 +3,7 @@ version: '3.5'
 services:
   es6-2:
     environment:
-      ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms1g -Xmx1g}
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms2g -Xmx2g}
       cluster.name: ${ES_CLUSTER_NAME:-es_dev}
     deploy:
       placement:
@@ -12,10 +12,10 @@ services:
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-1}'
-          memory: ${RESOURCES_LIMITS_MEMORY:-2G}
+          memory: ${RESOURCES_LIMITS_MEMORY:-4G}
         reservations:
           cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.1}'
-          memory: ${RESOURCES_RESERVATIONS_MEMORY:-1639M}
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-2500M}
 
 volumes:
   es-data-vol:
