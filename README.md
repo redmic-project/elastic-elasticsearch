@@ -85,10 +85,10 @@ While running, get into container and run the following commands:
 cd /usr/share/elasticsearch/plugins/search-guard-6/tools
 
 bash sgadmin.sh -cd /usr/share/elasticsearch/plugins/search-guard-6/sgconfig -icl \
-	-key /usr/share/elasticsearch/config/certs/admin.key \
-	-cert /usr/share/elasticsearch/config/certs/admin.pem \
-	-cacert /usr/share/elasticsearch/config/certs/root-ca.pem \
-	-nhnv -h localhost
+ -key /usr/share/elasticsearch/config/certs/admin.key \
+ -cert /usr/share/elasticsearch/config/certs/admin.pem \
+ -cacert /usr/share/elasticsearch/config/certs/root-ca.pem \
+ -nhnv -h localhost
 ```
 
 ## Snapshots
@@ -104,11 +104,11 @@ $ curl -XPOST -u <user>:<pass> 'http://localhost:9200/_nodes/reload_secure_setti
 // POST _nodes/reload_secure_settings
 
 $ curl -XPUT -u <user>:<pass> 'http://localhost:9200/_snapshot/s3-backup' -d '{
-	"type": "s3",
-	"settings": {
-		"bucket": "redmic.elasticsearch.backup",
-		"region": "eu-west-1"
-	}
+  "type": "s3",
+  "settings": {
+    "bucket": "redmic.elasticsearch.backup",
+    "region": "eu-west-1"
+  }
 }'
 // This can be run through Kibana console:
 // PUT _snapshot/s3-backup { ... }
