@@ -9,11 +9,7 @@ ARG ES_PATH="/usr/share/elasticsearch"
 ENV ES_PATH="${ES_PATH}" \
 	cluster.name="clustername" \
 	node.name="nodename" \
-	node.master="true" \
-	node.data="true" \
-	node.ingest="true" \
 	path.data="${ES_PATH}/data" \
-	network.host="0.0.0.0" \
 	bootstrap.memory_lock="true"
 
 ARG SEARCH_GUARD_VERSION="6.6.2-25.5"
