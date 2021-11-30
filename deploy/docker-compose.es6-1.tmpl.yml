@@ -1,0 +1,181 @@
+version: '3.5'
+
+services:
+  es6-1:
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
+    build:
+      context: ..
+      dockerfile: ${DOCKERFILE:-Dockerfile}
+      args:
+        PARENT_IMAGE_TAG:
+        ES_PATH:
+        SEARCH_GUARD_VERSION:
+    environment:
+      node.name: ${ES_NODE_NAME:-es6-1}
+      path.data: ${ES_PATH_DATA}
+      discovery.zen.minimum_master_nodes: ${ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES:-1}
+      xpack.security.enabled: ${ES_XPACK_SECURITY_ENABLED}
+      searchguard.nodes_dn.0: ${SG_NODE_1_DN}
+      searchguard.nodes_dn.1: ${SG_NODE_2_DN}
+      searchguard.nodes_dn.2: ${SG_NODE_3_DN}
+      searchguard.authcz.admin_dn.0: ${SG_ADMIN_DN}
+      searchguard.ssl.transport.pemcert_filepath: ${ES_SEARCHGUARD_SSL_TRANSPORT_PEMCERT_FILEPATH}
+      searchguard.ssl.transport.pemkey_filepath: ${ES_SEARCHGUARD_SSL_TRANSPORT_PEMKEY_FILEPATH}
+      searchguard.ssl.transport.pemtrustedcas_filepath: ${ES_SEARCHGUARD_SSL_TRANSPORT_PEMTRUSTEDCAS_FILEPATH}
+      searchguard.ssl.transport.enforce_hostname_verification: ${ES_SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION}
+      searchguard.ssl.transport.resolve_hostname: ${ES_SEARCHGUARD_SSL_TRANSPORT_RESOLVE_HOSTNAME}
+      searchguard.ssl.http.enabled: ${ES_SEARCHGUARD_SSL_HTTP_ENABLED}
+      searchguard.ssl.http.pemcert_filepath: ${ES_SEARCHGUARD_SSL_HTTP_PEMCERT_FILEPATH}
+      searchguard.ssl.http.pemkey_filepath: ${ES_SEARCHGUARD_SSL_HTTP_PEMKEY_FILEPATH}
+      searchguard.ssl.http.pemtrustedcas_filepath: ${ES_SEARCHGUARD_SSL_HTTP_PEMTRUSTEDCAS_FILEPATH}
+      searchguard.enable_snapshot_restore_privilege: ${ES_SEARCHGUARD_ENABLE_SNAPSHOT_RESTORE_PRIVILEGE}
+      searchguard.enterprise_modules_enabled: ${ES_SEARCHGUARD_ENTERPRISE_MODULES_ENABLED}
+      discovery.zen.ping.unicast.hosts: ${ES_DISCOVERY_ZEN_PING_UNICAST_HOSTS:-es6-2,es6-3}
+      S3_ACCESS_KEY:
+      S3_SECRET_KEY:
+    networks:
+      elastic-net:
+        aliases:
+          - ${ELASTIC_NET_ALIAS:-es6-1}
+      metric-net:
+    volumes:
+      - es-data-vol:${ES_PATH_DATA}
+      - es-conf-vol:${ES_CONFIG_PATH}
+    secrets:
+      - source: ca-pem
+        target: ${ES_CERT_PATH}/root-ca.pem
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: ca-key
+        target: ${ES_CERT_PATH}/root-ca.key
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: node-pem
+        target: ${ES_CERT_PATH}/node.pem
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: node-key
+        target: ${ES_CERT_PATH}/node.key
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: node-csr
+        target: ${ES_CERT_PATH}/node.csr
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: admin-pem
+        target: ${ES_CERT_PATH}/admin.pem
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: admin-key
+        target: ${ES_CERT_PATH}/admin.key
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: admin-csr
+        target: ${ES_CERT_PATH}/admin.csr
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+    configs:
+      - source: sg-users
+        target: ${SG_CONFIG_PATH}/sg_internal_users.yml
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: sg-config
+        target: ${SG_CONFIG_PATH}/sg_config.yml
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: sg-roles
+        target: ${SG_CONFIG_PATH}/sg_roles.yml
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+      - source: sg-roles-mapping
+        target: ${SG_CONFIG_PATH}/sg_roles_mapping.yml
+        mode: 0600
+        uid: '${SG_FILE_UID}'
+        gid: '${SG_FILE_GID}'
+    logging:
+      driver: json-file
+    healthcheck:
+      test: "[[ $$(curl --silent localhost:${PORT}/_cat/health?h=status) =~ ^(green|yellow|red) ]]"
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-1m}
+      retries: ${HEALTHCHECK_RETRIES:-20}
+      start_period: ${HEALTHCHECK_START_PERIOD:-2m}
+    deploy:
+      mode: replicated
+      replicas: ${REPLICAS:-1}
+      restart_policy:
+        delay: ${RESTART_DELAY:-5s}
+      update_config:
+        delay: ${UPDATE_DELAY:-3m}
+
+networks:
+  elastic-net:
+    name: ${ELASTIC_NET_NAME}
+    driver: ${ELASTIC_NET_DRIVER}
+    attachable: ${ELASTIC_NET_ATTACHABLE:-true}
+
+  metric-net:
+    name: ${METRIC_NET_NAME}
+    driver: ${METRIC_NET_DRIVER}
+    external: true
+
+secrets:
+  ca-pem:
+    name: ${CA_PEM_NAME}
+    file: ./certs/root-ca.pem
+
+  ca-key:
+    name: ${CA_KEY_NAME}
+    file: ./certs/root-ca.key
+
+  node-pem:
+    name: ${NODE_PEM_NAME:-node-pem}
+    file: ./certs/node.pem
+
+  node-key:
+    name: ${NODE_KEY_NAME:-node-key}
+    file: ./certs/node.key
+
+  node-csr:
+    name: ${NODE_CSR_NAME:-node-csr}
+    file: ./certs/node.csr
+
+  admin-pem:
+    name: ${ADMIN_PEM_NAME:-admin-pem}
+    file: ./certs/admin.pem
+
+  admin-key:
+    name: ${ADMIN_KEY_NAME:-admin-key}
+    file: ./certs/admin.key
+
+  admin-csr:
+    name: ${ADMIN_CSR_NAME:-admin-csr}
+    file: ./certs/admin.csr
+
+configs:
+  sg-users:
+    name: ${SG_USERS_NAME:-sg-users}
+    file: ./config/sg_internal_users.yml
+
+  sg-config:
+    name: ${SG_CONFIG_NAME:-sg-config}
+    file: ./config/sg_config.yml
+
+  sg-roles:
+    name: ${SG_ROLES_NAME:-sg-roles}
+    file: ./config/sg_roles.yml
+
+  sg-roles-mapping:
+    name: ${SG_ROLES_MAPPING_NAME:-sg-roles-mapping}
+    file: ./config/sg_roles_mapping.yml
