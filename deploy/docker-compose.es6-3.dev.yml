@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  es6-3:
+    environment:
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms2g -Xmx2g}
+      cluster.name: ${ES_CLUSTER_NAME:-es_dev}
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == ${PLACEMENT_CONSTRAINTS_NODE_HOSTNAME_3:-hostname}
+      resources:
+        limits:
+          cpus: '${RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-4G}
+        reservations:
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-2500M}
+
+volumes:
+  es-data-vol:
+    name: ${ES_DATA_VOL_NAME:-es6-3-data-vol}
+
+  es-conf-vol:
+    name: ${ES_CONF_VOL_NAME:-es6-3-conf-vol}

@@ -1,34 +1,21 @@
-ARG PARENT_IMAGE_NAME
-ARG PARENT_IMAGE_TAG
+ARG PARENT_IMAGE_TAG="6.6.2"
 
-FROM ${PARENT_IMAGE_NAME}:${PARENT_IMAGE_TAG}
+FROM docker.elastic.co/elasticsearch/elasticsearch:${PARENT_IMAGE_TAG}
 
-ENV ES_CLUSTER_NAME="clustername" \
-	ES_NODE_NAME="nodename" \
-	ES_NODE_MASTER="true" \
-	ES_NODE_DATA="true" \
-	ES_NODE_INGEST="true" \
-	ES_BOOTSTRAP_MEMORY_LOCK="true" \
-	ES_INDICES_QUERY_BOOL_MAX_CLAUSE_COUNT=30000 \
-	ES_NETWORK_HOST="0.0.0.0" \
-	ES_NETWORK_BIND_HOST="0.0.0.0" \
-	ES_NETWORK_PUBLISH_HOST="_eth0_" \
-	ES_DISCOVERY_ZEN_MINIMUM_MASTER_NODES=2 \
-	ES_PATH="/usr/share/elasticsearch"
+LABEL maintainer="info@redmic.es"
 
-ENV ES_DATA_PATH="${ES_PATH}/data"
+ARG ES_PATH="/usr/share/elasticsearch"
 
-RUN apt-get update && \
-	apt-get install -y --no-install-recommends \
-		gettext-base \
-		dnsutils && \
-	ulimit -n 65536
+ENV ES_PATH="${ES_PATH}" \
+	cluster.name="clustername" \
+	node.name="nodename" \
+	path.data="${ES_PATH}/data" \
+	bootstrap.memory_lock="true"
 
-COPY config/ ${ES_PATH}/config/
-COPY scripts/ /
+ARG SEARCH_GUARD_VERSION="6.6.2-25.5"
 
-VOLUME ["${ES_DATA_PATH}"]
+RUN ulimit -n 65536 && \
+	${ES_PATH}/bin/elasticsearch-plugin install --batch repository-s3 && \
+	${ES_PATH}/bin/elasticsearch-plugin install --batch com.floragunn:search-guard-6:${SEARCH_GUARD_VERSION}
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
-
-CMD ["elasticsearch"]
+VOLUME [ "${ES_PATH}/data" ]
