@@ -71,6 +71,7 @@ services:
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
+      endpoint_mode: dnsrr
       restart_policy:
         delay: ${RESTART_DELAY:-5s}
       update_config:
