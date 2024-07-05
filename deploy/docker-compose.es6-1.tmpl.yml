@@ -103,8 +103,6 @@ services:
         mode: 0600
         uid: '${SG_FILE_UID}'
         gid: '${SG_FILE_GID}'
-    logging:
-      driver: json-file
     healthcheck:
       test: "[[ $$(curl --silent localhost:${PORT}/_cat/health?h=status) =~ ^(green|yellow|red) ]]"
       interval: ${HEALTHCHECK_INTERVAL:-30s}
