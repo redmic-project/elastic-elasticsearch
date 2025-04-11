@@ -1,0 +1,47 @@
+services:
+  elasticsearch:
+    image: ${IMAGE_NAME:-docker.elastic.co/elasticsearch/elasticsearch}:${IMAGE_TAG:-latest}
+    hostname: ${HOSTNAME_PREFIX:-es}-{{.Node.Hostname}}
+    environment:
+      node.name: $${HOSTNAME}
+      path.data: ${ES_PATH_DATA}
+      bootstrap.memory_lock: ${ES_BOOTSTRAP_MEMORY_LOCK}
+      xpack.security.enabled: ${ES_XPACK_SECURITY_ENABLED}
+      cluster.initial_master_nodes: ${ES_CLUSTER_INITIAL_MASTER_NODES}
+      discovery.seed_hosts: ${ES_DISCOVERY_SEED_HOSTS}
+      ELASTIC_PASSWORD:
+      S3_ACCESS_KEY:
+      S3_SECRET_KEY:
+    networks:
+      elastic-net:
+      metric-net:
+    volumes:
+      - data-vol:${ES_PATH_DATA}
+      - conf-vol:${ES_CONFIG_PATH}
+    healthcheck:
+      test: "[[ $$(curl --silent localhost:9200}/_cat/health?h=status) =~ ^(green|yellow|red) ]]"
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-15s}
+      retries: ${HEALTHCHECK_RETRIES:-10}
+      start_period: ${HEALTHCHECK_START_PERIOD:-5m}
+    deploy:
+      mode: replicated
+      replicas: ${REPLICAS:-3}
+      placement:
+        max_replicas_per_node: 1
+      endpoint_mode: dnsrr
+      restart_policy:
+        delay: ${RESTART_DELAY:-5s}
+      update_config:
+        delay: ${UPDATE_DELAY:-5m}
+
+networks:
+  elastic-net:
+    name: ${ELASTIC_NET_NAME:-elastic-net}
+    driver: ${ELASTIC_NET_DRIVER:-overlay}
+    attachable: ${ELASTIC_NET_ATTACHABLE:-true}
+
+  metric-net:
+    name: ${METRIC_NET_NAME:-metric-net}
+    driver: ${METRIC_NET_DRIVER:-overlay}
+    external: true

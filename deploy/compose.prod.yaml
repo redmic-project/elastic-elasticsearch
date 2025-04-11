@@ -1,7 +1,5 @@
-version: '3.5'
-
 services:
-  es6-1:
+  elasticsearch:
     environment:
       ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms2g -Xmx2g}
       cluster.name: ${ES_CLUSTER_NAME:-es_pro}
@@ -10,7 +8,6 @@ services:
       placement:
         constraints:
           - node.role == worker
-          - engine.labels.availability_zone == ${AWS_REGION}a
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-2}'
@@ -20,17 +17,17 @@ services:
           memory: ${RESOURCES_RESERVATIONS_MEMORY:-3G}
 
 volumes:
-  es-data-vol:
-    name: ${ES_DATA_VOL_NAME:-es6-1-data-vol}
-    driver: 'cloudstor:aws'
+  data-vol:
+    name: ${DATA_VOL_NAME}-{{.Node.Hostname}}
+    driver: ${PRO_VOL_DRIVER}
     driver_opts:
       backing: relocatable
-      size: 25
-      ebstype: gp2
+      size: ${DATA_VOL_SIZE:-25}
+      ebstype: gp3
 
-  es-conf-vol:
-    name: ${ES_CONF_VOL_NAME:-es6-1-conf-vol}
-    driver: 'cloudstor:aws'
+  conf-vol:
+    name: ${CONF_VOL_NAME}-{{.Node.Hostname}}
+    driver: ${PRO_VOL_DRIVER}
     driver_opts:
       backing: shared
       perfmode: maxio
