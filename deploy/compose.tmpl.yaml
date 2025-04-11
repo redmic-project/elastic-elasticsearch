@@ -18,6 +18,10 @@ services:
     volumes:
       - data-vol:${ES_PATH_DATA}
       - conf-vol:${ES_CONFIG_PATH}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     healthcheck:
       test: "[[ $$(curl --silent localhost:9200}/_cat/health?h=status) =~ ^(green|yellow|red) ]]"
       interval: ${HEALTHCHECK_INTERVAL:-30s}
