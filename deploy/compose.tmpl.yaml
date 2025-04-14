@@ -81,6 +81,7 @@ services:
             echo "  $${nodeName}";
             echo -ne \
             "  - name: $${nodeName}\n"\
+            "   filename: node\n"\
             "   dns:\n"\
             "    - $${nodeName}\n"\
             "    - localhost\n"\
@@ -88,7 +89,7 @@ services:
             "    - 127.0.0.1\n"\
             >> ${ES_CERT_PATH}/instances.yml;
           done;
-          bin/elasticsearch-certutil cert --silent --pem --name node \
+          bin/elasticsearch-certutil cert --silent --pem \
             --out ${ES_CERT_PATH}/certs.zip --in ${ES_CERT_PATH}/instances.yml \
             --ca-cert ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH} --ca-key ${ES_CERT_PATH}/${SSL_CA_KEY_FILEPATH};
           if [ ! -f ${ES_CERT_PATH}/certs.zip ]
@@ -120,10 +121,10 @@ services:
       resources:
         limits:
           cpus: '1'
-          memory: 128M
+          memory: 64M
         reservations:
           cpus: '0.001'
-          memory: 64M
+          memory: 32M
 
 networks:
   elastic-net:
