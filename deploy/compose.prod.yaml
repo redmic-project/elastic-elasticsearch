@@ -31,3 +31,9 @@ volumes:
     driver_opts:
       backing: shared
       perfmode: maxio
+
+  cert-vol:
+    name: ${CERT_VOL_NAME}
+    driver: ${PRO_VOL_DRIVER}
+    driver_opts:
+      backing: shared

@@ -20,3 +20,11 @@ volumes:
   conf-vol:
     name: ${CONF_VOL_NAME}-{{.Node.Hostname}}
     driver: ${DEV_VOL_DRIVER}
+
+  cert-vol:
+    name: ${CERT_VOL_NAME}
+    driver: ${DEV_VOL_DRIVER}
+    driver_opts:
+      type: ${VOL_TYPE:-nfs}
+      o: addr=${VOL_ADDR:-127.0.0.1},vers=${VOL_VERS:-4.2},${VOL_OPTS:-nolock,noacl,noatime,nodiratime}
+      device: :${VOL_DEVICE_PREFIX}${CERT_VOL_DEVICE:-/elasticsearch-cert-vol/}
