@@ -75,7 +75,8 @@ services:
         then
           echo "Creating certs";
           echo -ne "instances:\n" > ${ES_CERT_PATH}/instances.yml;
-          for nodeName in $$(echo "$${ES_CLUSTER_NODES}" | sed "s/,/ /g")
+          nodeNames=$$(echo "$${ES_CLUSTER_NODES:-ES_CLUSTER_INITIAL_MASTER_NODES}");
+          for nodeName in $$(echo "$${nodeNames}" | sed "s/,/ /g")
           do
             echo "  $${nodeName}";
             echo -ne \
@@ -107,6 +108,7 @@ services:
       '
     environment:
       ES_CLUSTER_NODES:
+      ES_CLUSTER_INITIAL_MASTER_NODES:
     networks:
       elastic-net:
     volumes:
