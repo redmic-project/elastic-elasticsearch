@@ -106,7 +106,7 @@ services:
         echo "All done!";
       '
     environment:
-      ES_CLUSTER_NODES: ${ES_CLUSTER_NODES:-${ES_CLUSTER_INITIAL_MASTER_NODES}}
+      ES_CLUSTER_NODES:
     networks:
       elastic-net:
     volumes:
@@ -118,11 +118,11 @@ services:
         condition: on-failure
       resources:
         limits:
-          cpus: '0.5'
-          memory: 16M
+          cpus: '1'
+          memory: 128M
         reservations:
           cpus: '0.001'
-          memory: 8M
+          memory: 64M
 
 networks:
   elastic-net:
