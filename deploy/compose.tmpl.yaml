@@ -1,9 +1,9 @@
 services:
   elasticsearch:
     image: ${IMAGE_NAME:-docker.elastic.co/elasticsearch/elasticsearch}:${IMAGE_TAG:-latest}
-    hostname: ${HOSTNAME_PREFIX:-es}-{{.Node.Hostname}}
+    hostname: ${HOSTNAME_PREFIX}-{{.Node.Hostname}}
     environment:
-      node.name: $${HOSTNAME}
+      node.name: ${HOSTNAME_PREFIX}-{{.Node.Hostname}}
       path.data: ${ES_PATH_DATA}
       bootstrap.memory_lock: ${ES_BOOTSTRAP_MEMORY_LOCK}
       xpack.security.enabled: ${ES_XPACK_SECURITY_ENABLED}
