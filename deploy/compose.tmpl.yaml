@@ -62,6 +62,11 @@ services:
         then
           echo "Creating CA";
           bin/elasticsearch-certutil ca --silent --pem -out ${ES_CERT_PATH}/ca.zip;
+          if [ ! -f ${ES_CERT_PATH}/ca.zip ]
+          then
+            echo "CA creation failed";
+            exit 1;
+          fi;
           unzip ${ES_CERT_PATH}/ca.zip -d ${ES_CERT_PATH};
         else
           echo "Found previous CA, omitting creation";
@@ -70,7 +75,7 @@ services:
         then
           echo "Creating certs";
           echo -ne "instances:\n" > ${ES_CERT_PATH}/instances.yml;
-          for nodeName in $$(echo "${ES_CLUSTER_NODES:-${ES_CLUSTER_INITIAL_MASTER_NODES}}" | sed "s/,/ /g")
+          for nodeName in $$(echo "$${ES_CLUSTER_NODES}" | sed "s/,/ /g")
           do
             echo "  $${nodeName}";
             echo -ne \
@@ -85,6 +90,11 @@ services:
           bin/elasticsearch-certutil cert --silent --pem --name node \
             --out ${ES_CERT_PATH}/certs.zip --in ${ES_CERT_PATH}/instances.yml \
             --ca-cert ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH} --ca-key ${ES_CERT_PATH}/${SSL_CA_KEY_FILEPATH};
+          if [ ! -f ${ES_CERT_PATH}/certs.zip ]
+          then
+            echo "Certs creation failed";
+            exit 1;
+          fi;
           unzip ${ES_CERT_PATH}/certs.zip -d ${ES_CERT_PATH};
         else
           echo "Found previous certs, omitting creation";
@@ -95,6 +105,8 @@ services:
         find ${ES_CERT_PATH} -type f -exec chmod 640 \{\} \;;
         echo "All done!";
       '
+    environment:
+      ES_CLUSTER_NODES: ${ES_CLUSTER_NODES:-${ES_CLUSTER_INITIAL_MASTER_NODES}}
     networks:
       elastic-net:
     volumes:
