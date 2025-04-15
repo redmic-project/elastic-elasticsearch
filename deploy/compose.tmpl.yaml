@@ -82,6 +82,7 @@ services:
             "  - name: $${nodeName}\n"\
             "   dns:\n"\
             "     - $${nodeName}\n"\
+            "     - elasticsearch\n"\
             "     - localhost\n"\
             "   ip:\n"\
             "     - 127.0.0.1\n"\
