@@ -81,7 +81,7 @@ services:
             echo "  $${nodeName}";
             echo -ne \
             "  - name: $${nodeName}\n"\
-            "   filename: node\n"\
+            "   filename: $${nodeName}/node\n"\
             "   dns:\n"\
             "    - $${nodeName}\n"\
             "    - localhost\n"\
@@ -121,7 +121,7 @@ services:
       resources:
         limits:
           cpus: '1'
-          memory: 64M
+          memory: 128M
         reservations:
           cpus: '0.001'
           memory: 32M
