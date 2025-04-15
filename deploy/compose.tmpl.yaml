@@ -79,18 +79,18 @@ services:
           for nodeName in $$(echo "$${nodeNames}" | sed "s/,/ /g")
           do
             echo "  $${nodeName}";
-            echo -ne
-            "  - name: $${nodeName}\n"
-            "    filename: $${nodeName}/node\n"
-            "    dns:\n"
-            "      - $${nodeName}\n"
-            "      - localhost\n"
-            "    ip:\n"
-            "      - 127.0.0.1\n"
+            echo -ne \
+            "  - name: $${nodeName}\n"\
+            "   filename: $${nodeName}/node\n"\
+            "   dns:\n"\
+            "    - $${nodeName}\n"\
+            "    - localhost\n"\
+            "   ip:\n"\
+            "    - 127.0.0.1\n"\
             >> ${ES_CERT_PATH}/instances.yml;
           done;
-          bin/elasticsearch-certutil cert --silent --pem
-            --out ${ES_CERT_PATH}/certs.zip --in ${ES_CERT_PATH}/instances.yml
+          bin/elasticsearch-certutil cert --silent --pem \
+            --out ${ES_CERT_PATH}/certs.zip --in ${ES_CERT_PATH}/instances.yml \
             --ca-cert ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH} --ca-key ${ES_CERT_PATH}/${SSL_CA_KEY_FILEPATH};
           if [ ! -f ${ES_CERT_PATH}/certs.zip ]
           then
