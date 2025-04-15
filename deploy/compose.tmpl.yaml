@@ -36,7 +36,7 @@ services:
         soft: -1
         hard: -1
     healthcheck:
-      test: "[[ $$(curl --silent localhost:9200}/_cat/health?h=status) =~ ^(green|yellow|red) ]]"
+      test: "curl -s https://localhost:9200 | grep -q 'missing authentication credentials'"
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-15s}
       retries: ${HEALTHCHECK_RETRIES:-10}
