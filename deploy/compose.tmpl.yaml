@@ -101,8 +101,8 @@ services:
         fi;
         echo "Setting file permissions";
         chown -R root:root ${ES_CERT_PATH};
-        find ${ES_CERT_PATH} -type d -exec chmod 750 \{\} \; > /dev/null;
-        find ${ES_CERT_PATH} -type f -exec chmod 640 \{\} \; > /dev/null;
+        find ${ES_CERT_PATH} -type d -exec chmod 750 \{\} \;;
+        find ${ES_CERT_PATH} -type f -exec chmod 640 \{\} \;;
         echo "All done!";
       '
     environment:
