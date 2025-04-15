@@ -35,12 +35,6 @@ services:
       memlock:
         soft: -1
         hard: -1
-    healthcheck:
-      test: "curl -s https://localhost:9200 | grep -q 'missing authentication credentials'"
-      interval: ${HEALTHCHECK_INTERVAL:-30s}
-      timeout: ${HEALTHCHECK_TIMEOUT:-15s}
-      retries: ${HEALTHCHECK_RETRIES:-10}
-      start_period: ${HEALTHCHECK_START_PERIOD:-5m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-3}
