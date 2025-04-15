@@ -100,7 +100,7 @@ services:
           echo "Found previous certs, omitting creation";
         fi;
         echo "Setting file permissions";
-        chown -R root:root ${ES_CERT_PATH} > /dev/null;
+        chown -R root:root ${ES_CERT_PATH};
         find ${ES_CERT_PATH} -type d -exec chmod 750 \{\} \; > /dev/null;
         find ${ES_CERT_PATH} -type f -exec chmod 640 \{\} \; > /dev/null;
         echo "All done!";
