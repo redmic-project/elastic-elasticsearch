@@ -25,13 +25,6 @@ volumes:
       size: ${DATA_VOL_SIZE:-25}
       ebstype: gp3
 
-  conf-vol:
-    name: ${CONF_VOL_NAME}-{{.Node.Hostname}}
-    driver: ${PRO_VOL_DRIVER}
-    driver_opts:
-      backing: shared
-      perfmode: maxio
-
   cert-vol:
     name: ${CERT_VOL_NAME}
     driver: ${PRO_VOL_DRIVER}

@@ -17,10 +17,6 @@ volumes:
     name: ${DATA_VOL_NAME}-{{.Node.Hostname}}
     driver: ${DEV_VOL_DRIVER}
 
-  conf-vol:
-    name: ${CONF_VOL_NAME}-{{.Node.Hostname}}
-    driver: ${DEV_VOL_DRIVER}
-
   cert-vol:
     name: ${CERT_VOL_NAME}
     driver: ${DEV_VOL_DRIVER}

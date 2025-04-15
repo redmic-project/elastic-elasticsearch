@@ -30,7 +30,6 @@ services:
       metric-net:
     volumes:
       - data-vol:${ES_PATH_DATA}
-      - conf-vol:${ES_CONFIG_PATH}
       - cert-vol:${ES_CERT_PATH}
     ulimits:
       memlock:
