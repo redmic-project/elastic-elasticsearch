@@ -35,6 +35,19 @@ services:
       memlock:
         soft: -1
         hard: -1
+    healthcheck:
+      test: >
+        if [[ $$(cut -d '.' -f1 /proc/uptime) -lt ${HEALTHCHECK_START_BYPASS:-60} ]]
+        then
+            exit 0;
+        else
+            statusCode=$$(curl --cacert ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH} -s -o /dev/null -I -w "%{http_code}" https://localhost:${INTERNAL_PORT});
+            [[ $${statusCode} -eq '401' ]];
+        fi
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-15s}
+      retries: ${HEALTHCHECK_RETRIES:-10}
+      start_period: ${HEALTHCHECK_START_PERIOD:-5m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-3}
