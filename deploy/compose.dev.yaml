@@ -5,7 +5,7 @@ services:
       cluster.name: ${ES_CLUSTER_NAME:-es_dev}
     ports:
       - target: ${INTERNAL_PORT}
-        published: ${EXTERNAL_PORT:-${INTERNAL_PORT}}
+        published: ${EXTERNAL_PORT:-9200}
         mode: ${PORT_MODE:-host}
     deploy:
       resources:
