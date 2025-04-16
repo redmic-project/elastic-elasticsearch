@@ -37,7 +37,7 @@ services:
         hard: -1
     healthcheck:
       test: >
-        if [[ $$(cut -d '.' -f1 /proc/uptime) -lt ${HEALTHCHECK_START_BYPASS:-60} ]]
+        if [[ $$(cut -d '.' -f1 /proc/uptime) -lt ${HEALTHCHECK_START_BYPASS:-60} ]];
         then
             exit 0;
         else
