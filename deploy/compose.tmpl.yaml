@@ -41,6 +41,7 @@ services:
       timeout: ${HEALTHCHECK_TIMEOUT:-15s}
       retries: ${HEALTHCHECK_RETRIES:-10}
       start_period: ${HEALTHCHECK_START_PERIOD:-5m}
+    stop_grace_period: ${STOP_GRACE_PERIOD:-2m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-3}
