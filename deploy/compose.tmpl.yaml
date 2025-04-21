@@ -122,8 +122,7 @@ services:
         else
           echo "Password set failed";
         fi;
-        echo "All done!";
-      '
+        echo "All done!"'
     environment:
       ES_CLUSTER_NODES:
     networks:
