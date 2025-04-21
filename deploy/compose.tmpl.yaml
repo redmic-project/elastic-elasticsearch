@@ -36,7 +36,9 @@ services:
         soft: -1
         hard: -1
     healthcheck:
-      test: curl --cacert ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH} -s -o /dev/null -I -w "%{http_code}" https://localhost:${INTERNAL_PORT}
+      test: >
+        curl -s -o /dev/null -I -w "%{http_code}" --cacert ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH} \
+          https://localhost:${INTERNAL_PORT} | grep -q "^${HEALTH_STATUS_CODE}$$"
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-15s}
       retries: ${HEALTHCHECK_RETRIES:-10}
@@ -105,6 +107,21 @@ services:
         chown -R root:root ${ES_CERT_PATH};
         find ${ES_CERT_PATH} -type d -exec chmod 750 \{\} \;;
         find ${ES_CERT_PATH} -type f -exec chmod 640 \{\} \;;
+        echo "Waiting for Elasticsearch availability";
+        until curl -s -o /dev/null -I -w "%{http_code}" --cacert ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH} \
+          https://elasticsearch:${INTERNAL_PORT} | grep -q "^${HEALTH_STATUS_CODE}$$"
+        do
+          sleep 5;
+        done;
+        echo "Setting ${KIBANA_USER} password";
+        if curl -s --cacert ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH} -u "elastic:${ELASTIC_PASSWORD}" \
+          -X POST -H "Content-Type: application/json" -d "{\"password\":\"${KIBANA_PASS}\"}" \
+          https://elasticsearch:${INTERNAL_PORT}/_security/user/${KIBANA_USER}/_password | grep -q "^{}"
+        then
+          echo "Password set successfully";
+        else
+          echo "Password set failed";
+        fi;
         echo "All done!";
       '
     environment:
