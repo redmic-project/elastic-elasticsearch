@@ -4,7 +4,6 @@ services:
     hostname: ${HOSTNAME_PREFIX}-{{.Node.Hostname}}
     environment:
       path.data: ${ES_PATH_DATA}
-      node.name: ${HOSTNAME_PREFIX}-{{.Node.Hostname}}
       cluster.initial_master_nodes: ${ES_CLUSTER_INITIAL_MASTER_NODES}
       discovery.seed_hosts: ${ES_DISCOVERY_SEED_HOSTS}
       ELASTIC_PASSWORD:
