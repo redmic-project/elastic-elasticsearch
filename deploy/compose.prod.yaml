@@ -17,7 +17,7 @@ services:
           memory: ${RESOURCES_RESERVATIONS_MEMORY:-3G}
 
 volumes:
-  data-vol:
+  elasticsearch-data-vol:
     name: ${DATA_VOL_NAME}-{{.Node.Hostname}}
     driver: ${PRO_VOL_DRIVER}
     driver_opts:
@@ -25,8 +25,7 @@ volumes:
       size: ${DATA_VOL_SIZE:-25}
       ebstype: gp3
 
-  cert-vol:
-    name: ${CERT_VOL_NAME}
+  elasticsearch-cert-vol:
     driver: ${PRO_VOL_DRIVER}
     driver_opts:
       backing: shared

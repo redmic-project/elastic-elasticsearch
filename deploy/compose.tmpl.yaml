@@ -25,11 +25,11 @@ services:
       S3_ACCESS_KEY:
       S3_SECRET_KEY:
     networks:
-      elastic-net:
+      elasticsearch-net:
       metric-net:
     volumes:
-      - data-vol:${ES_PATH_DATA}
-      - cert-vol:${ES_CERT_PATH}
+      - elasticsearch-data-vol:${ES_PATH_DATA}
+      - elasticsearch-cert-vol:${ES_CERT_PATH}
     ulimits:
       memlock:
         soft: -1
@@ -125,9 +125,9 @@ services:
     environment:
       ES_CLUSTER_NODES:
     networks:
-      elastic-net:
+      elasticsearch-net:
     volumes:
-      - cert-vol:${ES_CERT_PATH}
+      - elasticsearch-cert-vol:${ES_CERT_PATH}
     deploy:
       mode: replicated
       replicas: 1
@@ -142,10 +142,9 @@ services:
           memory: 32M
 
 networks:
-  elastic-net:
-    name: ${ELASTIC_NET_NAME:-elastic-net}
-    driver: ${ELASTIC_NET_DRIVER:-overlay}
-    attachable: ${ELASTIC_NET_ATTACHABLE:-true}
+  elasticsearch-net:
+    driver: ${ELASTICSEARCH_NET_DRIVER:-overlay}
+    attachable: ${ELASTICSEARCH_NET_ATTACHABLE:-true}
 
   metric-net:
     name: ${METRIC_NET_NAME:-metric-net}
