@@ -1,11 +1,11 @@
 include:
   - project: 'redmic-project/gitlab-ci-templates'
-    ref: master
-    file: '/deployment-service/docker-deploy.yml'
+    ref: main
+    file: '/test/auto.yml'
+  - project: 'redmic-project/gitlab-ci-templates'
+    ref: main
+    file: '/deploy/service/docker-deploy.yml'
 
-stages:
-  - deploy
-
-.deploy:
+.docker-deploy:
   variables:
-    STACK: elastic
+    STACK: elastic8
