@@ -3,7 +3,6 @@ services:
     environment:
       ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms2g -Xmx2g}
       cluster.name: ${ES_CLUSTER_NAME:-es_pro}
-      TAKE_FILE_OWNERSHIP: '1000:0'
     deploy:
       placement:
         constraints:
