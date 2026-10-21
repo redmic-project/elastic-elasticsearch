@@ -1,0 +1,29 @@
+services:
+  elasticsearch:
+    environment:
+      ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms2g -Xmx2g}
+      cluster.name: ${ES_CLUSTER_NAME:-es_dev}
+    ports:
+      - target: ${INTERNAL_PORT}
+        published: ${EXTERNAL_PORT:-9200}
+        mode: ${PORT_MODE:-host}
+    deploy:
+      resources:
+        limits:
+          cpus: '${RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-4G}
+        reservations:
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-2500M}
+
+volumes:
+  elasticsearch-data-vol:
+    name: ${DATA_VOL_NAME}-{{.Node.Hostname}}
+    driver: ${DEV_VOL_DRIVER}
+
+  elasticsearch-cert-vol:
+    driver: ${DEV_VOL_DRIVER}
+    driver_opts:
+      type: ${VOL_TYPE:-nfs}
+      o: addr=${VOL_ADDR:-127.0.0.1},vers=${VOL_VERS:-4.2},${VOL_OPTS:-soft,nolock,noacl,noatime,nodiratime}
+      device: :${VOL_DEVICE_PREFIX}${CERT_VOL_DEVICE:-/elasticsearch-cert-vol/}
