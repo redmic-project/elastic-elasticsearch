@@ -1,9 +1,13 @@
 services:
   elasticsearch:
+    hostname: ${HOSTNAME_PREFIX}-{{.Task.Slot}}
     environment:
       ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms2g -Xmx2g}
       cluster.name: ${ES_CLUSTER_NAME:-es_pro}
-      TAKE_FILE_OWNERSHIP: '1000:0'
+      xpack.security.http.ssl.key: ${ES_CERT_PATH}/${HOSTNAME_PREFIX}-{{.Task.Slot}}/${HOSTNAME_PREFIX}-{{.Task.Slot}}.key
+      xpack.security.http.ssl.certificate: ${ES_CERT_PATH}/${HOSTNAME_PREFIX}-{{.Task.Slot}}/${HOSTNAME_PREFIX}-{{.Task.Slot}}.crt
+      xpack.security.transport.ssl.key: ${ES_CERT_PATH}/${HOSTNAME_PREFIX}-{{.Task.Slot}}/${HOSTNAME_PREFIX}-{{.Task.Slot}}.key
+      xpack.security.transport.ssl.certificate: ${ES_CERT_PATH}/${HOSTNAME_PREFIX}-{{.Task.Slot}}/${HOSTNAME_PREFIX}-{{.Task.Slot}}.crt
     deploy:
       placement:
         constraints:
@@ -18,7 +22,7 @@ services:
 
 volumes:
   elasticsearch-data-vol:
-    name: ${DATA_VOL_NAME}-{{.Node.Hostname}}
+    name: ${DATA_VOL_NAME}-{{.Task.Slot}}
     driver: ${PRO_VOL_DRIVER}
     driver_opts:
       backing: relocatable
