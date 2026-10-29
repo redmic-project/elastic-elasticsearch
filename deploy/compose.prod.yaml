@@ -2,7 +2,6 @@ services:
   elasticsearch:
     hostname: ${HOSTNAME_PREFIX}-{{.Task.Slot}}
     environment:
-      ES_JAVA_OPTS: ${ES_JAVA_OPTS:--Xms2g -Xmx2g}
       cluster.name: ${ES_CLUSTER_NAME:-es_pro}
       xpack.security.http.ssl.key: ${ES_CERT_PATH}/${HOSTNAME_PREFIX}-{{.Task.Slot}}/${HOSTNAME_PREFIX}-{{.Task.Slot}}.key
       xpack.security.http.ssl.certificate: ${ES_CERT_PATH}/${HOSTNAME_PREFIX}-{{.Task.Slot}}/${HOSTNAME_PREFIX}-{{.Task.Slot}}.crt
@@ -22,7 +21,7 @@ services:
 
 volumes:
   elasticsearch-data-vol:
-    name: ${DATA_VOL_NAME}-{{.Task.Slot}}
+    name: ${STACK}_${DATA_VOL_NAME}-{{.Task.Slot}}
     driver: ${PRO_VOL_DRIVER}
     driver_opts:
       backing: relocatable

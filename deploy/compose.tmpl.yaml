@@ -6,6 +6,7 @@ services:
       cluster.initial_master_nodes: ${ES_CLUSTER_INITIAL_MASTER_NODES}
       discovery.seed_hosts: ${ES_DISCOVERY_SEED_HOSTS}
       ELASTIC_PASSWORD:
+      ES_JAVA_OPTS:
       bootstrap.memory_lock: ${ES_BOOTSTRAP_MEMORY_LOCK}
       xpack.security.enabled: ${ES_XPACK_SECURITY_ENABLED}
       xpack.security.http.ssl.enabled: ${ES_XPACK_SECURITY_HTTP_SSL_ENABLED}
@@ -17,8 +18,6 @@ services:
       xpack.security.transport.ssl.verification_mode: ${ES_XPACK_SECURITY_TRANSPORT_SSL_VERIFICATION_MODE}
       xpack.security.transport.ssl.certificate_authorities: ${ES_CERT_PATH}/${SSL_CA_CERT_FILEPATH}
       xpack.ml.use_auto_machine_memory_percent: ${ES_XPACK_ML_USE_AUTO_MACHINE_MEMORY_PERCENT}
-      S3_ACCESS_KEY:
-      S3_SECRET_KEY:
     networks:
       elasticsearch-net:
       metric-net:
